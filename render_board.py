@@ -26,8 +26,8 @@ except ImportError:
 
 
 # ===================== 片头片尾配置 =====================
-INTRO_TITLE = "深蓝国际象棋协会"
-INTRO_SUBTITLE = "深蓝棋评"
+INTRO_TITLE = "深蓝棋评"
+INTRO_SUBTITLE = "深蓝国际象棋协会"
 
 OUTRO_TITLE = "感谢观看"
 OUTRO_SUBTITLE = "深蓝棋评 · 我们下期再见"
@@ -1062,9 +1062,35 @@ class ChessBoardRenderer:
             frame_num += 1
 
         # 片头画面 2：对局信息简介（2秒，30帧）
-        info_text = f"{self.game_info.get('white','白方')} vs {self.game_info.get('black','黑方')}"
+        info_parts = []
+        wp = self.game_info.get('white', '白方')
+        bp = self.game_info.get('black', '黑方')
+        welo = self.game_info.get('white_elo', '')
+        belo = self.game_info.get('black_elo', '')
+        result = self.game_info.get('result', '')
+        tc = self.game_info.get('time_control', '')
+
+        if welo:
+            info_parts.append(f"{wp}")
+        if belo:
+            info_parts.append(f"{bp}")
+
+        match_line = f"{wp}  vs  {bp}"
+        if welo and belo:
+            match_line = f"{wp} ({welo})  vs  {bp} ({belo})"
+
+        detail_line = ""
         if self.game_info.get('opening'):
-            info_text += f"\n开局：{self.game_info['opening']}"
+            detail_line = f"开局: {self.game_info['opening']}"
+        if tc:
+            detail_line += f"  |  {tc}"
+        if result and result != '*':
+            detail_line += f"  |  结果: {result}"
+
+        info_text = match_line
+        if detail_line:
+            info_text += "\n" + detail_line
+
         img_info = self.render_text_slide(
             info_text.split("\n")[0] if "\n" in info_text else info_text,
             "\n".join(info_text.split("\n")[1:]) if "\n" in info_text else "",
@@ -1199,25 +1225,35 @@ class ChessBoardRenderer:
         outro_secs = 4
         outro_frames = int(outro_secs * fps)
 
-        # 片尾画面 1：感谢观看（2秒，30帧）
+        # 片尾画面 1：感谢观看 + 结果信息（2秒）
+        result_text = "对局结束"
+        result = self.game_info.get("result", "")
+        if result == "1-0":
+            result_text = f"白方胜 — {self.game_info.get('white','')}"
+        elif result == "0-1":
+            result_text = f"黑方胜 — {self.game_info.get('black','')}"
+        elif result == "1/2-1/2":
+            result_text = "双方和棋"
+
+        wp = self.game_info.get('white', '白方')
+        bp = self.game_info.get('black', '黑方')
+        credits_text = f"{wp} vs {bp}"
+        if self.game_info.get('opening'):
+            credits_text += f" · {self.game_info['opening']}"
+
         img_outro = self.render_text_slide(
-            OUTRO_TITLE, OUTRO_SUBTITLE, style="outro"
+            result_text, credits_text, style="outro"
         )
         for _ in range(outro_frames // 2):
             img_outro.save(output_dir / f"frame_{frame_num:06d}.png")
             frame_num += 1
 
-        # 片尾画面 2：最终棋盘定格（2秒，30帧）
-        result_text = "对局结束"
-        result = self.game_info.get("result", "")
-        if result == "1-0":
-            result_text = f"白方胜 · {self.game_info.get('white','')}"
-        elif result == "0-1":
-            result_text = f"黑方胜 · {self.game_info.get('black','')}"
-        elif result == "1/2-1/2":
-            result_text = "双方和棋"
+        # 片尾画面 2：协会信息 + 技术说明（2秒）
         img_outro2 = self.render_text_slide(
-            result_text, "感谢收看 · 我们下期再见", style="outro"
+            OUTRO_TITLE,
+            OUTRO_SUBTITLE + "\nAI 讲解 · 深蓝出品",
+            style="outro"
+        )
         )
         for _ in range(outro_frames // 2):
             img_outro2.save(output_dir / f"frame_{frame_num:06d}.png")
