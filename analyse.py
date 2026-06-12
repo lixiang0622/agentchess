@@ -21,6 +21,7 @@ from master_games_db import query_master_moves
 from branch_evaluator import evaluate_branch_trigger, apply_suppression_rules, generate_branch_guide_for_prompt
 from opening_knowledge import get_kb
 from position_explain import analyze as position_explain_analyze
+from midgame_knowledge import get_mk
 
 # 1. 设置引擎路径
 STOCKFISH_PATH = r"D:\国际象棋社团\agentchess\stockfish-windows-x86-64-avx2\stockfish\stockfish-windows-x86-64-avx2.exe"
@@ -357,6 +358,7 @@ for move_number, move in enumerate(game.mainline_moves(), start=1):
             "diagnosis": explanation["diagnosis_zh"],
             "changes": explanation["changes"],
         },
+        "midgame_principles": "",  # 稍后填入
         "time_spent_seconds": time_spent,
         "is_long_think": is_long_think,
     }
@@ -1048,6 +1050,25 @@ print(f"  关键时刻 ({critical_result['distribution']['critical']} 步): "
 print(f"  值得注意 ({critical_result['distribution']['notable']} 步): "
       f"{', '.join(str(m) for m in critical_result['notable_moves'])}")
 print(f"  常规走法: {critical_result['distribution']['routine']} 步")
+
+# ---- 中局知识库匹配（对所有 step 做后处理）----
+print("\n" + "="*60)
+print("📖 中局知识库匹配")
+print("="*60)
+try:
+    mk = get_mk()
+    mg_match_count = 0
+    for step in steps:
+        phase = step.get("phase", {})
+        if phase.get("macro_phase") == "中局":
+            matched = mk.match_from_step(step)
+            if matched:
+                prompt = mk.build_prompt_context(matched, max_principles=3)
+                step["midgame_principles"] = prompt
+                mg_match_count += 1
+    print(f"  已为 {mg_match_count} 个中局步骤注入棋理知识")
+except Exception as e:
+    print(f"  ⚠ 中局知识库匹配失败: {e}")
 
 # ---- 分支讲解触发评估 & 抑制规则 ----
 print("\n" + "="*60)
