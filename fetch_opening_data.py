@@ -36,103 +36,223 @@ OUTPUT_FILE = SCRIPT_DIR / "opening_knowledge_fetched.json"
 #  阶段1: 从 lichess.org/opening 发现所有开局
 # ═══════════════════════════════════════════════════════════════
 
-async def discover_openings_from_lichess(headless: bool = True) -> list[dict]:
+async def _extract_opening_links(page) -> list[dict]:
+    """从当前页面提取所有开局链接"""
+    links = await page.query_selector_all("a[href^='/opening/']")
+    results = []
+    for link in links:
+        try:
+            href = await link.get_attribute("href")
+            if not href or href == "/opening":
+                continue
+            slug = href.replace("/opening/", "").strip()
+            # 跳过杂项链接
+            skip_words = ["search", "masters", "database", "api", "about", "lichess", "analysis", "editor"]
+            if not slug or any(w in slug.lower() for w in skip_words):
+                continue
+
+            text = (await link.text_content()).strip()
+            # 清理文本：去掉百分比、胜率等统计数字
+            text = re.sub(r'\d+%', '', text).strip()
+            text = re.sub(r'\d{2,}', '', text).strip()
+            if not text or len(text) < 2:
+                continue
+
+            results.append({"slug": slug, "name": text, "url": f"https://lichess.org{href}"})
+        except Exception:
+            continue
+    return results
+
+
+async def discover_openings_recursive(
+    headless: bool = True,
+    max_depth: int = 4,
+    max_total: int = 200,
+) -> list[dict]:
     """
-    打开 lichess.org/opening，抓取开局浏览器中列出的所有开局。
-    Lichess 开局页面按类别展示热门开局（如 King's Pawn, Queen's Pawn 等）。
-    每个类别下列出具体开局名称、ECO 代码和链接。
+    递归深入抓取开局树。
+    从 lichess.org/opening 开始，逐层点击每个开局链接，
+    在子页面中继续发现子变例，直到达到深度上限或总数。
+
+    深度0: King's Pawn Game, Queen's Pawn Game, ...
+    深度1: Sicilian Defense, French Defense, Italian Game, ...
+    深度2: Najdorf, Dragon, Sveshnikov, ...
+    深度3: English Attack, Yugoslav Attack, ...
     """
-    openings = []
-    seen = set()
+    discovered = []
+    seen_slugs = set()
+    # BFS 队列: (slug, name, depth, parent_name)
+    queue: list = []
 
     async with async_playwright() as p:
         browser = await p.chromium.launch(headless=headless)
-        page = await browser.new_page()
+        context = await browser.new_context(
+            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+        )
+
+        # === 第0层: 首页 ===
+        page = await context.new_page()
         page.set_default_timeout(30000)
+        print("[深度 0] 访问 lichess.org/opening ...")
+        await page.goto("https://lichess.org/opening", wait_until="networkidle")
+        await page.wait_for_timeout(3000)
 
-        try:
-            print("打开 lichess.org/opening ...")
-            await page.goto("https://lichess.org/opening", wait_until="networkidle")
-            await page.wait_for_timeout(3000)
+        root_links = await _extract_opening_links(page)
+        for rl in root_links:
+            if rl["slug"] not in seen_slugs:
+                seen_slugs.add(rl["slug"])
+                queue.append((rl["slug"], rl["name"], 0, ""))
 
-            # 获取页面中的所有开局链接
-            # Lichess 开局页面链接格式: /opening/Italian_Game
-            links = await page.query_selector_all("a[href^='/opening/']")
+        print(f"  首页发现 {len(root_links)} 个一级分类")
 
-            for link in links:
+        # === BFS 逐层抓取 ===
+        depth = 0
+        processed = 0
+
+        while queue:
+            slug, name, d, parent = queue.pop(0)
+
+            if d > depth:
+                depth = d
+                print(f"\n  [深度 {depth}] 处理中...")
+
+            if len(discovered) >= max_total:
+                print(f"\n  已达到上限 {max_total} 个，停止发现")
+                break
+
+            # 只对深度 < max_depth 的继续深挖
+            should_deepen = (d < max_depth)
+
+            processed += 1
+            if processed % 10 == 0:
+                print(f"    [{processed}] {name[:40]} (深度{d})")
+
+            # 访问详情页
+            url = f"https://lichess.org/opening/{slug}"
+            detail_page = await context.new_page()
+            detail_page.set_default_timeout(20000)
+
+            try:
+                await detail_page.goto(url, wait_until="networkidle")
+                await detail_page.wait_for_timeout(2000)
+
+                # === 提取该页面的统计数据 ===
+                entry = {
+                    "name": "",
+                    "eco_code": "",
+                    "moves_sequence": [],
+                    "fen_signature": "",
+                    "top_moves": [],
+                    "stats": {},
+                    "typical_plans": {"white": ["(需手工补充)"], "black": ["(需手工补充)"]},
+                    "common_traps": [],
+                    "famous_practitioners": [],
+                    "_depth": d,
+                    "_parent": parent,
+                }
+
+                # 开局名称
                 try:
-                    href = await link.get_attribute("href")
-                    if not href or href == "/opening":
-                        continue
-                    # 跳过搜索/杂项链接
-                    slug = href.replace("/opening/", "").strip()
-                    if not slug or any(s in slug.lower() for s in
-                                       ["search", "masters", "database", "api", "about", "lichess"]):
-                        continue
-
-                    text = (await link.text_content()).strip()
-                    if not text or len(text) < 2:
-                        continue
-
-                    # 去重
-                    if slug in seen:
-                        continue
-                    seen.add(slug)
-
-                    openings.append({
-                        "slug": slug,
-                        "name": text,
-                        "url": f"https://lichess.org{href}",
-                    })
-
+                    # 优先取页面标题（通常是"开局名 - 变例名 - lichess.org"格式）
+                    page_title = await detail_page.title()
+                    if page_title and " - " in page_title:
+                        entry["name"] = page_title.split(" - ")[0].strip()
+                    # 过滤 invalid
+                    bad = {"chess opening", "chess openings", "lichess.org", "",
+                           "opening", "• lichess.org"}
+                    if entry["name"].lower() in bad:
+                        entry["name"] = name  # 回退到链接文字
                 except Exception:
-                    continue
+                    entry["name"] = name
 
-            print(f"  发现 {len(openings)} 个开局链接")
+                # 再过滤一次
+                entry["name"] = re.sub(r'\d+%', '', entry["name"]).strip()
 
-            # 如果发现太少，尝试点击分类展开
-            if len(openings) < 30:
-                print("  开局数量偏少，尝试展开分类...")
-                # 点击可能的展开按钮
-                expand_btns = await page.query_selector_all(
-                    "button[class*='expand'], .opening-category__toggle, details summary"
-                )
-                for btn in expand_btns:
-                    try:
-                        await btn.click()
-                        await page.wait_for_timeout(500)
-                    except Exception:
-                        pass
+                # ECO
+                try:
+                    # 从页面标题或 meta 提取
+                    eco_match = re.search(r'\(([A-E]\d{2})\)', page_title or "")
+                    if not eco_match:
+                        h1 = await detail_page.query_selector("h1")
+                        if h1:
+                            h1_text = (await h1.text_content()).strip()
+                            eco_match = re.search(r'([A-E]\d{2})', h1_text)
+                    if eco_match:
+                        entry["eco_code"] = eco_match.group(1)
+                except Exception:
+                    pass
 
-                # 重新抓取
-                links = await page.query_selector_all("a[href^='/opening/']")
-                for link in links:
-                    try:
-                        href = await link.get_attribute("href")
-                        if not href or href == "/opening":
-                            continue
-                        slug = href.replace("/opening/", "").strip()
-                        if not slug or slug in seen:
-                            continue
-                        text = (await link.text_content()).strip()
-                        if not text or len(text) < 2:
-                            continue
-                        seen.add(slug)
-                        openings.append({
-                            "slug": slug,
-                            "name": text,
-                            "url": f"https://lichess.org{href}",
-                        })
-                    except Exception:
-                        continue
-                print(f"  展开后共发现 {len(openings)} 个开局")
+                # 走法序列 (从页面的 PGN 显示)
+                try:
+                    move_els = await detail_page.query_selector_all(
+                        "a[data-ply], .opening-move, .move-list a, [class*='pgn'] a"
+                    )
+                    moves = []
+                    for el in move_els[:20]:
+                        t = (await el.text_content()).strip()
+                        if t and re.match(r'^[a-hKNQRBO0-]', t):
+                            moves.append(t)
+                    if moves:
+                        entry["moves_sequence"] = moves
+                except Exception:
+                    pass
 
-        except Exception as e:
-            print(f"  ✗ 发现阶段失败: {e}")
-        finally:
-            await browser.close()
+                # 走法统计表
+                try:
+                    rows = await detail_page.query_selector_all(
+                        "table tbody tr, .explorer__moves tr, [class*='moves'] tr, [class*='explorer'] tr"
+                    )
+                    for row in rows:
+                        cells = await row.query_selector_all("td, th")
+                        texts = []
+                        for cell in cells:
+                            t = (await cell.text_content()).strip()
+                            if t:
+                                texts.append(t)
+                        if texts and re.match(r'^[a-hKNQRBO0-]', texts[0]):
+                            entry["top_moves"].append({
+                                "san": texts[0],
+                                "count": _parse_int(texts[1]) if len(texts) > 1 else 0,
+                                "pct": _parse_float(texts[2]) if len(texts) > 2 else 0,
+                            })
+                except Exception:
+                    pass
 
-    return openings
+                if entry["top_moves"]:
+                    entry["stats"]["total_games"] = sum(m.get("count", 0) for m in entry["top_moves"])
+
+                discovered.append(entry)
+                if entry["name"]:
+                    print(f"    [{processed}] ✓ {entry['name'][:50]} (深度{d})")
+
+                # === 递归：在子页面中发现更多开局 ===
+                if should_deepen:
+                    sub_links = await _extract_opening_links(detail_page)
+                    for sl in sub_links:
+                        if sl["slug"] not in seen_slugs:
+                            seen_slugs.add(sl["slug"])
+                            queue.append((sl["slug"], sl["name"], d + 1, entry["name"]))
+
+            except Exception as e:
+                pass
+            finally:
+                await detail_page.close()
+                time.sleep(0.3)  # 温和限速
+
+        await browser.close()
+
+    print(f"\n{'='*60}")
+    print(f"发现阶段完成: 共 {len(discovered)} 个开局")
+    print(f"  深度分布: ", end="")
+    depth_counts = {}
+    for d in discovered:
+        dd = d.get("_depth", 0)
+        depth_counts[dd] = depth_counts.get(dd, 0) + 1
+    for dd in sorted(depth_counts):
+        print(f"d{dd}={depth_counts[dd]} ", end="")
+    print()
+
+    return discovered
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -459,39 +579,11 @@ def _parse_float(s: str) -> float:
 # ═══════════════════════════════════════════════════════════════
 
 async def main_discover_and_scrape(headless: bool = True):
-    """方案A: 发现 + 详情抓取"""
+    """方案A: 递归发现 + 抓取详情（一步完成）"""
     print("=" * 60)
-    print("阶段1: 从 lichess.org/opening 发现所有开局")
+    print("阶段B: 递归深入抓取开局树 (max_depth=4)")
     print("=" * 60)
-    discovered = await discover_openings_from_lichess(headless=headless)
-
-    if not discovered:
-        print("⚠ 未发现开局，切换到内置 ECO 表方案")
-        return await main_scrape_by_eco(headless)
-
-    print(f"\n发现 {len(discovered)} 个开局，开始抓取详情...\n")
-
-    results = []
-    for i, op in enumerate(discovered):
-        print(f"[{i+1}/{len(discovered)}] {op['name'][:50]} ({op['slug']})")
-        detail = await scrape_opening_detail(op["slug"], headless=headless)
-
-        merged = {
-            "name": detail.get("name") or op.get("name", ""),
-            "eco_code": detail.get("eco_code", ""),
-            "moves_sequence": detail.get("moves_sequence", []),
-            "fen_signature": detail.get("fen_signature", ""),
-            "top_moves": detail.get("top_moves", []),
-            "stats": detail.get("stats", {}),
-            "typical_plans": detail.get("typical_plans", {"white": ["(需手工补充)"], "black": ["(需手工补充)"]}),
-            "common_traps": [],
-            "famous_practitioners": [],
-        }
-        results.append(merged)
-
-        if i < len(discovered) - 1:
-            time.sleep(0.5)
-
+    results = await discover_openings_recursive(headless=headless, max_depth=4)
     return results
 
 
