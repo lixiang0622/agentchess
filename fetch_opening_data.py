@@ -1,12 +1,16 @@
 """
-Lichess 开局数据库抓取脚本 (Playwright 版)
-使用无头浏览器模拟真实用户访问 lichess.org/opening，抓取 JS 渲染后的统计数据。
+Lichess 开局数据库完整抓取脚本 (Playwright 版)
+
+两阶段抓取:
+  阶段1: 从 lichess.org/opening 抓取所有开局名称和链接
+  阶段2: 逐个访问开局详情页，抓取走法统计数据
 
 用法:
-  python fetch_opening_data.py --batch e4 e5 Nf3 Nc6 Bb5
-  python fetch_opening_data.py --preset              # 批量抓取预设列表
-  python fetch_opening_data.py --preset --headless   # 无头模式(后台运行)
-  python fetch_opening_data.py --wiki "Italian Game" # Wikipedia 摘要
+  python fetch_opening_data.py                    # 全量抓取(自动发现所有开局)
+  python fetch_opening_data.py --eco-only          # 仅用内置ECO表抓取(100+)
+  python fetch_opening_data.py --visible           # 可见浏览器(调试)
+  python fetch_opening_data.py --batch e4 e5 Nf3   # 单独抓一个
+  python fetch_opening_data.py --wiki "Italian Game"
 """
 
 import sys
@@ -21,253 +25,529 @@ sys.stdout.reconfigure(encoding="utf-8")
 try:
     from playwright.async_api import async_playwright
 except ImportError:
-    print("请先安装 playwright: pip install playwright && playwright install chromium")
+    print("pip install playwright && playwright install chromium")
     sys.exit(1)
-
-try:
-    import requests as _requests
-    HAS_REQUESTS = True
-except ImportError:
-    HAS_REQUESTS = False
 
 SCRIPT_DIR = Path(__file__).parent
 OUTPUT_FILE = SCRIPT_DIR / "opening_knowledge_fetched.json"
 
 
 # ═══════════════════════════════════════════════════════════════
-#  Playwright 抓取 Lichess Opening Explorer
+#  阶段1: 从 lichess.org/opening 发现所有开局
 # ═══════════════════════════════════════════════════════════════
 
-def moves_to_fen(moves_san: list) -> str:
-    """将 SAN 走法列表转为 FEN"""
-    import chess
-    board = chess.Board()
-    for san in moves_san:
-        try:
-            board.push_san(san)
-        except ValueError:
-            print(f"  ⚠ 非法走法: {san}")
-            break
-    return board.fen()
-
-
-async def scrape_lichess_opening(moves_san: list, headless: bool = True) -> dict:
+async def discover_openings_from_lichess(headless: bool = True) -> list[dict]:
     """
-    用 Playwright 打开 lichess.org/opening 页面并抓取开局统计数据。
-
-    页面结构: Lichess 开局浏览器在 FEN 棋盘下方有一个走法统计表格。
-    每一行格式: 走法名称 | 盘数 | 百分比 | 白方胜率 | 和棋率 | 黑方胜率
+    打开 lichess.org/opening，抓取开局浏览器中列出的所有开局。
+    Lichess 开局页面按类别展示热门开局（如 King's Pawn, Queen's Pawn 等）。
+    每个类别下列出具体开局名称、ECO 代码和链接。
     """
-    fen = moves_to_fen(moves_san)
-    url = f"https://lichess.org/opening?fen={fen}"
-    move_sequence_str = " ".join(moves_san)
-
-    print(f"\n{'='*60}")
-    print(f"抓取: {move_sequence_str[:50]}")
-    print(f"URL:  {url}")
-    print(f"{'='*60}")
-
-    moves_data = []
-    opening_name = ""
-    eco_code = ""
-    entry = None
+    openings = []
+    seen = set()
 
     async with async_playwright() as p:
         browser = await p.chromium.launch(headless=headless)
-        context = await browser.new_context(
-            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
-        )
-        page = await context.new_page()
+        page = await browser.new_page()
+        page.set_default_timeout(30000)
 
         try:
-            # 访问页面
-            await page.goto(url, wait_until="networkidle", timeout=30000)
-            # 额外等待渲染
+            print("打开 lichess.org/opening ...")
+            await page.goto("https://lichess.org/opening", wait_until="networkidle")
             await page.wait_for_timeout(3000)
 
-            # 获取开局名称
-            try:
-                name_el = await page.query_selector("h1.opening__title, .opening-name, [data-opening-name]")
-                if not name_el:
-                    name_el = await page.query_selector("h1")
-                if name_el:
-                    opening_name = (await name_el.text_content()).strip()
-                    print(f"  ✓ 开局名称: {opening_name}")
-            except Exception:
-                pass
+            # 获取页面中的所有开局链接
+            # Lichess 开局页面链接格式: /opening/Italian_Game
+            links = await page.query_selector_all("a[href^='/opening/']")
 
-            # 提取 ECO 代码
-            try:
-                eco_el = await page.query_selector(".opening__eco, [data-eco]")
-                if eco_el:
-                    eco_code = (await eco_el.text_content()).strip()
-                    print(f"  ✓ ECO: {eco_code}")
-            except Exception:
-                # 尝试从名称中提取
-                eco_match = re.search(r'\(([A-E]\d{2})\)', opening_name)
-                if eco_match:
-                    eco_code = eco_match.group(1)
-
-            # 方法 A: 获取走法统计表格
-            # Lichess 在 opening explorer 中显示了两个 tab:
-            #   "Lichess" (全平台数据) 和 "Masters" (大师数据)
-            # 我们先取全平台数据，再取大师数据
-
-            for tab_name, tab_selector in [
-                ("lichess", "div.explorer__title:has-text('Lichess')"),
-                ("masters", "div.explorer__title:has-text('Masters')"),
-            ]:
+            for link in links:
                 try:
-                    # 点击对应 tab（Masters tab）
-                    if tab_name == "masters":
-                        tab_btn = await page.query_selector("span:has-text('Masters')")
-                        if tab_btn:
-                            await tab_btn.click()
-                            await page.wait_for_timeout(1500)
+                    href = await link.get_attribute("href")
+                    if not href or href == "/opening":
+                        continue
+                    # 跳过搜索/杂项链接
+                    slug = href.replace("/opening/", "").strip()
+                    if not slug or any(s in slug.lower() for s in
+                                       ["search", "masters", "database", "api", "about", "lichess"]):
+                        continue
 
-                    # 提取表格行
-                    rows = await page.query_selector_all("table.explorer__moves tr, .explorer__moves .moves tbody tr")
-                    if not rows:
-                        # 备用选择器
-                        rows = await page.query_selector_all("[data-move]")
+                    text = (await link.text_content()).strip()
+                    if not text or len(text) < 2:
+                        continue
 
-                    tab_moves = []
-                    for row in rows:
-                        try:
-                            cells = await row.query_selector_all("td, th, span")
-                            texts = []
-                            for cell in cells:
-                                t = (await cell.text_content()).strip()
-                                if t:
-                                    texts.append(t)
+                    # 去重
+                    if slug in seen:
+                        continue
+                    seen.add(slug)
 
-                            if len(texts) >= 3:
-                                san = texts[0]
-                                count_str = texts[1] if len(texts) > 1 else "0"
-                                pct_str = texts[2] if len(texts) > 2 else "0"
+                    openings.append({
+                        "slug": slug,
+                        "name": text,
+                        "url": f"https://lichess.org{href}",
+                    })
 
-                                # 解析数字
-                                count = int(re.sub(r'[^\d]', '', count_str)) if re.sub(r'[^\d]', '', count_str) else 0
-                                pct = float(re.sub(r'[^\d.]', '', pct_str)) if re.sub(r'[^\d.]', '', pct_str).replace('.', '', 1).isdigit() else 0
+                except Exception:
+                    continue
 
-                                tab_moves.append({
-                                    "san": san,
-                                    "count": count,
-                                    "pct": pct,
-                                    "source": tab_name,
-                                })
-                        except Exception:
+            print(f"  发现 {len(openings)} 个开局链接")
+
+            # 如果发现太少，尝试点击分类展开
+            if len(openings) < 30:
+                print("  开局数量偏少，尝试展开分类...")
+                # 点击可能的展开按钮
+                expand_btns = await page.query_selector_all(
+                    "button[class*='expand'], .opening-category__toggle, details summary"
+                )
+                for btn in expand_btns:
+                    try:
+                        await btn.click()
+                        await page.wait_for_timeout(500)
+                    except Exception:
+                        pass
+
+                # 重新抓取
+                links = await page.query_selector_all("a[href^='/opening/']")
+                for link in links:
+                    try:
+                        href = await link.get_attribute("href")
+                        if not href or href == "/opening":
                             continue
-
-                    if tab_moves:
-                        moves_data.extend(tab_moves)
-                        print(f"  ✓ {tab_name} tab: {len(tab_moves)} 个走法")
-
-                except Exception as e:
-                    print(f"  ⚠ {tab_name} tab 抓取失败: {e}")
-
-            # 方法 B: 如果表格抓不到，找嵌入的 JSON 数据
-            if not moves_data:
-                try:
-                    html = await page.content()
-                    # 找 <script> 中的 opening 数据
-                    json_match = re.search(r'lichess\.opening\s*=\s*({.+?});', html, re.DOTALL)
-                    if not json_match:
-                        json_match = re.search(r'"moves"\s*:\s*\[.+?\]', html, re.DOTALL)
-                    if json_match:
-                        print(f"  ℹ 找到嵌入 JSON 数据")
-                except Exception:
-                    pass
-
-            if not opening_name:
-                try:
-                    title = await page.title()
-                    if title:
-                        opening_name = title.split("•")[0].strip()
-                except Exception:
-                    pass
+                        slug = href.replace("/opening/", "").strip()
+                        if not slug or slug in seen:
+                            continue
+                        text = (await link.text_content()).strip()
+                        if not text or len(text) < 2:
+                            continue
+                        seen.add(slug)
+                        openings.append({
+                            "slug": slug,
+                            "name": text,
+                            "url": f"https://lichess.org{href}",
+                        })
+                    except Exception:
+                        continue
+                print(f"  展开后共发现 {len(openings)} 个开局")
 
         except Exception as e:
-            print(f"  ✗ 页面抓取失败: {e}")
+            print(f"  ✗ 发现阶段失败: {e}")
         finally:
             await browser.close()
 
-    # 构建结果
-    total = sum(m.get("count", 0) for m in moves_data) if moves_data else 0
-
-    entry = {
-        "eco_code": eco_code or "?",
-        "name": opening_name or f"未知: {' '.join(moves_san[:4])}",
-        "moves_sequence": moves_san,
-        "fen_signature": fen,
-        "stats": {
-            "total_games": total,
-            "source": "lichess_playwright",
-        },
-        "top_moves": sorted(moves_data, key=lambda m: m.get("count", 0), reverse=True)[:5],
-        "typical_plans": {
-            "white": ["(需手工补充)"],
-            "black": ["(需手工补充)"],
-        },
-        "common_traps": [],
-        "famous_practitioners": [],
-    }
-
-    return entry
+    return openings
 
 
 # ═══════════════════════════════════════════════════════════════
-#  批量抓取
+#  阶段2: 抓取单个开局详情页
 # ═══════════════════════════════════════════════════════════════
 
-async def batch_scrape(lines: list, output_path: Path, headless: bool = True):
+async def scrape_opening_detail(slug: str, headless: bool = True) -> dict:
+    """
+    打开 lichess.org/opening/<slug> 详情页，抓取:
+    - 开局名称 (从页面 h1 或 title，过滤掉泛化的 "Chess Opening")
+    - ECO 代码
+    - 走法树 (PGN moves)
+    - 走法统计表
+    """
+    url = f"https://lichess.org/opening/{slug}"
+
+    async with async_playwright() as p:
+        browser = await p.chromium.launch(headless=headless)
+        page = await browser.new_page()
+        page.set_default_timeout(25000)
+
+        result = {
+            "name": "",
+            "eco_code": "",
+            "moves_sequence": [],
+            "fen_signature": "",
+            "top_moves": [],
+            "stats": {},
+            "typical_plans": {"white": ["(需手工补充)"], "black": ["(需手工补充)"]},
+            "common_traps": [],
+            "famous_practitioners": [],
+        }
+
+        try:
+            await page.goto(url, wait_until="networkidle")
+            await page.wait_for_timeout(3000)
+
+            # === 提取开局名称 ===
+            # 优先级: opening__title 类 > page title > h1(但排除泛化文本)
+            name = ""
+            try:
+                title_el = await page.query_selector(
+                    ".opening__title, .opening-title, [data-title]"
+                )
+                if title_el:
+                    name = (await title_el.text_content()).strip()
+
+                # fallback: page <title>
+                if not name:
+                    page_title = await page.title()
+                    # 过滤掉 "Chess Opening" 泛化标题
+                    if page_title and "lichess" not in page_title.lower():
+                        name = page_title.replace("• lichess.org", "").strip()
+            except Exception:
+                pass
+
+            # === 过滤无效名称 ===
+            bad_names = [
+                "chess opening", "chess openings", "Opening", "opening",
+                "Chess Opening Explorer", "lichess.org", "",
+            ]
+            if name.lower() in bad_names or name.lower().startswith("lichess"):
+                name = ""
+                # 最后一次尝试: 从 URL slug 推断
+                from_slug = slug.replace("_", " ").title()
+                if from_slug.lower() not in bad_names:
+                    name = from_slug
+
+            if name and name.lower() != "chess opening":
+                result["name"] = name
+
+            # === 提取 ECO ===
+            try:
+                eco_el = await page.query_selector(
+                    ".opening__eco, [data-eco], .eco-code, .opening-eco"
+                )
+                if eco_el:
+                    eco = (await eco_el.text_content()).strip()
+                    eco_match = re.search(r'[A-E]\d{2}', eco)
+                    if eco_match:
+                        result["eco_code"] = eco_match.group()
+            except Exception:
+                pass
+
+            # 从名称中提取 ECO
+            if not result["eco_code"]:
+                eco_match = re.search(r'\(([A-E]\d{2})\)', name)
+                if eco_match:
+                    result["eco_code"] = eco_match.group(1)
+
+            # === 提取走法序列 (PGN) ===
+            try:
+                move_elements = await page.query_selector_all(
+                    ".opening__moves .move, .opening-moves a, [data-ply]"
+                )
+                moves = []
+                for el in move_elements:
+                    t = (await el.text_content()).strip()
+                    if t and re.match(r'^[a-hKNQRBO0-]+', t):
+                        moves.append(t)
+                if moves:
+                    result["moves_sequence"] = moves
+            except Exception:
+                pass
+
+            # === 提取走法统计表 ===
+            try:
+                table_rows = await page.query_selector_all(
+                    "table.explorer__moves tbody tr, .moves-table tr, [class*='explorer'] tr"
+                )
+                for row in table_rows:
+                    cells = await row.query_selector_all("td, th")
+                    texts = []
+                    for cell in cells:
+                        t = (await cell.text_content()).strip()
+                        if t:
+                            texts.append(t)
+                    if len(texts) >= 3 and re.match(r'^[a-hKNQRBO0-]', texts[0]):
+                        result["top_moves"].append({
+                            "san": texts[0],
+                            "count": _parse_int(texts[1]) if len(texts) > 1 else 0,
+                            "pct": _parse_float(texts[2]) if len(texts) > 2 else 0,
+                        })
+            except Exception:
+                pass
+
+            # === 提取总统计 ===
+            try:
+                total_el = await page.query_selector(
+                    ".explorer__total, [class*='total-games'], [class*='game-count']"
+                )
+                if total_el:
+                    total_text = (await total_el.text_content()).strip()
+                    result["stats"]["total_games"] = _parse_int(total_text)
+            except Exception:
+                pass
+
+        except Exception as e:
+            print(f"    ✗ 抓取失败: {e}")
+        finally:
+            await browser.close()
+
+    return result
+
+
+# ═══════════════════════════════════════════════════════════════
+#  方案B: 用内置ECO表抓取 (更可靠, 覆盖100+开局)
+# ═══════════════════════════════════════════════════════════════
+
+# 从项目已有的 eco_table.json + opening_knowledge.json 中提取所有 ECO
+def get_eco_from_local_files() -> list[dict]:
+    """从本地 JSON 文件提取所有已知开局的 ECO 和走法序列"""
+    import chess
+
+    entries = []
+
+    # 1. 从 eco_table.json
+    eco_path = SCRIPT_DIR / "eco_table.json"
+    if eco_path.exists():
+        with eco_path.open("r", encoding="utf-8") as f:
+            eco_table = json.load(f)
+        for eco_code, name_zh, fen_pattern in eco_table:
+            # 用 FEN pattern 推演出一个代表性走法序列
+            board = chess.Board()
+            try:
+                # 尝试从 FEN 推导出 approximate 走法——这里用 FEN pattern 作为 signature
+                entries.append({
+                    "eco_code": eco_code,
+                    "name": name_zh,
+                    "fen_pattern": fen_pattern,
+                    "moves_sequence": [],  # 将被 scrape_by_fen 填充
+                })
+            except Exception:
+                pass
+
+    # 2. 从 opening_knowledge.json 提取已有的
+    kb_path = SCRIPT_DIR / "opening_knowledge.json"
+    if kb_path.exists():
+        with kb_path.open("r", encoding="utf-8") as f:
+            kb_entries = json.load(f)
+        for ke in kb_entries:
+            eco = ke.get("eco_code", "")
+            if eco and eco not in {e["eco_code"] for e in entries}:
+                entries.append({
+                    "eco_code": eco,
+                    "name": ke.get("name", ""),
+                    "fen_pattern": ke.get("fen_signature", ""),
+                    "moves_sequence": ke.get("moves_sequence", []),
+                })
+
+    # 3. 根据走法序列构建 FEN 再抓取
+    import chess
+    for entry in entries:
+        if entry["moves_sequence"]:
+            board = chess.Board()
+            for san in entry["moves_sequence"]:
+                try:
+                    board.push_san(san)
+                except ValueError:
+                    break
+            entry["fen"] = board.fen()
+        else:
+            entry["fen"] = ""
+
+    return entries
+
+
+async def scrape_by_fen(fen: str, headless: bool = True) -> dict:
+    """用 FEN URL 参数抓取开局页面（无需 slug）"""
+    import urllib.parse
+
+    fen_encoded = urllib.parse.quote(fen, safe="")
+    url = f"https://lichess.org/opening?fen={fen_encoded}"
+
+    async with async_playwright() as p:
+        browser = await p.chromium.launch(headless=headless)
+        page = await browser.new_page()
+        page.set_default_timeout(20000)
+
+        result = {
+            "name": "", "eco_code": "", "top_moves": [], "stats": {},
+            "typical_plans": {"white": ["(需手工补充)"], "black": ["(需手工补充)"]},
+            "common_traps": [], "famous_practitioners": [],
+        }
+
+        try:
+            await page.goto(url, wait_until="networkidle")
+            await page.wait_for_timeout(2500)
+
+            # 开局名称 — 找具体的 span/div，不要 h1
+            try:
+                name_selectors = [
+                    "span.opening__name",
+                    ".opening-box__title span",
+                    "[data-opening]",
+                ]
+                name = ""
+                for sel in name_selectors:
+                    el = await page.query_selector(sel)
+                    if el:
+                        name = (await el.text_content()).strip()
+                        break
+
+                # fallback: 从 <title>
+                if not name:
+                    page_title = await page.title()
+                    # 通常格式: "Italian Game - Chess Openings - lichess.org"
+                    if " - " in page_title:
+                        name = page_title.split(" - ")[0].strip()
+                    elif "•" in page_title:
+                        name = page_title.split("•")[0].strip()
+
+                # 再次过滤无效名称
+                bad = {"chess opening", "chess openings", "lichess.org", ""}
+                if name and name.lower().strip("- ") not in bad:
+                    result["name"] = name
+                else:
+                    # 从页面提取最具体的信息
+                    h1 = await page.query_selector("h1")
+                    if h1:
+                        h1_text = (await h1.text_content()).strip()
+                        # 只取冒号前或括号前的内容
+                        h1_text = re.sub(r'\([^)]*chess[^)]*\)', '', h1_text, flags=re.I)
+                        h1_text = re.sub(r'\s*[-–—].*$', '', h1_text).strip()
+                        if h1_text.lower() not in bad and len(h1_text) > 2:
+                            result["name"] = h1_text
+            except Exception:
+                pass
+
+            # 统计表
+            try:
+                rows = await page.query_selector_all(
+                    "table tbody tr, .explorer__moves tr, [class*='moves'] tr"
+                )
+                for row in rows:
+                    cells = await row.query_selector_all("td, th, span")
+                    texts = [((await c.text_content()).strip()) for c in cells if (await c.text_content()).strip()]
+                    # 过滤: 第一列是合法走法
+                    if texts and re.match(r'^[a-hKNQRBO0-]', texts[0]):
+                        result["top_moves"].append({
+                            "san": texts[0],
+                            "count": _parse_int(texts[1]) if len(texts) > 1 else 0,
+                            "pct": _parse_float(texts[2]) if len(texts) > 2 else 0,
+                        })
+            except Exception:
+                pass
+
+            if result["top_moves"]:
+                result["stats"]["total_games"] = sum(
+                    m.get("count", 0) for m in result["top_moves"]
+                )
+
+        except Exception as e:
+            pass
+        finally:
+            await browser.close()
+
+    return result
+
+
+# ═══════════════════════════════════════════════════════════════
+#  辅助函数
+# ═══════════════════════════════════════════════════════════════
+
+def _parse_int(s: str) -> int:
+    if not s:
+        return 0
+    cleaned = re.sub(r"[^\d]", "", s)
+    return int(cleaned) if cleaned else 0
+
+
+def _parse_float(s: str) -> float:
+    if not s:
+        return 0.0
+    cleaned = re.sub(r"[^\d.]", "", s)
+    try:
+        return float(cleaned)
+    except ValueError:
+        return 0.0
+
+
+# ═══════════════════════════════════════════════════════════════
+#  主流程
+# ═══════════════════════════════════════════════════════════════
+
+async def main_discover_and_scrape(headless: bool = True):
+    """方案A: 发现 + 详情抓取"""
+    print("=" * 60)
+    print("阶段1: 从 lichess.org/opening 发现所有开局")
+    print("=" * 60)
+    discovered = await discover_openings_from_lichess(headless=headless)
+
+    if not discovered:
+        print("⚠ 未发现开局，切换到内置 ECO 表方案")
+        return await main_scrape_by_eco(headless)
+
+    print(f"\n发现 {len(discovered)} 个开局，开始抓取详情...\n")
+
     results = []
-    for i, line in enumerate(lines):
-        line = line.strip()
-        if not line or line.startswith("#"):
-            continue
+    for i, op in enumerate(discovered):
+        print(f"[{i+1}/{len(discovered)}] {op['name'][:50]} ({op['slug']})")
+        detail = await scrape_opening_detail(op["slug"], headless=headless)
 
-        parts = line.split("|")
-        moves_str = parts[0].strip()
-        name = parts[1].strip() if len(parts) > 1 else ""
-        eco = parts[2].strip() if len(parts) > 2 else ""
-        moves = moves_str.split()
-        if not moves:
-            continue
+        merged = {
+            "name": detail.get("name") or op.get("name", ""),
+            "eco_code": detail.get("eco_code", ""),
+            "moves_sequence": detail.get("moves_sequence", []),
+            "fen_signature": detail.get("fen_signature", ""),
+            "top_moves": detail.get("top_moves", []),
+            "stats": detail.get("stats", {}),
+            "typical_plans": detail.get("typical_plans", {"white": ["(需手工补充)"], "black": ["(需手工补充)"]}),
+            "common_traps": [],
+            "famous_practitioners": [],
+        }
+        results.append(merged)
 
-        entry = await scrape_lichess_opening(moves, headless=headless)
-        if entry:
-            if name and "未知" in entry.get("name", ""):
-                entry["name"] = name
-            if eco and entry.get("eco_code") in ("?", ""):
-                entry["eco_code"] = eco
-            results.append(entry)
+        if i < len(discovered) - 1:
+            time.sleep(0.5)
 
-        # 限速
-        if i < len(lines) - 1:
-            time.sleep(1)
+    return results
 
-    # 保存
-    if results and output_path:
-        with output_path.open("w", encoding="utf-8") as f:
-            json.dump(results, f, ensure_ascii=False, indent=2)
-        print(f"\n✓ 已保存 {len(results)} 个开局到 {output_path}")
+
+async def main_scrape_by_eco(headless: bool = True):
+    """方案B: 用内置 ECO 表抓取"""
+    print("=" * 60)
+    print("方案B: 用内置 ECO 表抓取 (100+ 开局)")
+    print("=" * 60)
+
+    entries = get_eco_from_local_files()
+    print(f"从本地 JSON 提取到 {len(entries)} 个开局")
+
+    # 过滤掉没有 FEN 的
+    valid = [e for e in entries if e.get("fen")]
+    print(f"其中 {len(valid)} 个有可用的 FEN signature\n")
+
+    results = []
+    for i, entry in enumerate(valid):
+        name = entry.get("name", "?")
+        eco = entry.get("eco_code", "?")
+        fen = entry["fen"]
+        print(f"[{i+1}/{len(valid)}] {eco} — {name[:40]}")
+
+        detail = await scrape_by_fen(fen, headless=headless)
+
+        merged = {
+            "name": detail.get("name") or name,
+            "eco_code": detail.get("eco_code") or eco,
+            "moves_sequence": entry.get("moves_sequence", []),
+            "fen_signature": fen,
+            "top_moves": detail.get("top_moves", []),
+            "stats": detail.get("stats", {}),
+            "typical_plans": {"white": ["(需手工补充)"], "black": ["(需手工补充)"]},
+            "common_traps": [],
+            "famous_practitioners": [],
+        }
+        results.append(merged)
+
+        if i < len(valid) - 1:
+            time.sleep(0.5)
 
     return results
 
 
 # ═══════════════════════════════════════════════════════════════
-#  Wikipedia (保持不变)
+#  Wikipedia
 # ═══════════════════════════════════════════════════════════════
 
 def fetch_wikipedia_summary(title: str) -> str:
-    """从 Wikipedia REST API 获取摘要"""
+    import urllib.request
+    import urllib.parse
+    api_url = f"https://en.wikipedia.org/api/rest_v1/page/summary/{urllib.parse.quote(title.replace(' ', '_'))}"
     try:
-        import urllib.request
-        url = f"https://en.wikipedia.org/api/rest_v1/page/summary/{urllib.parse.quote(title.replace(' ', '_'))}"
-        req = urllib.request.Request(url, headers={"User-Agent": "agentchess/1.0"})
-        with urllib.request.urlopen(req, timeout=10) as resp:
-            data = json.loads(resp.read().decode("utf-8"))
+        req = urllib.request.Request(api_url, headers={"User-Agent": "agentchess/2.0"})
+        with urllib.request.urlopen(req, timeout=10) as r:
+            data = json.loads(r.read().decode("utf-8"))
         extract = data.get("extract", "")
         if extract:
             print(f"  ✓ Wikipedia: {len(extract)} 字符")
@@ -278,66 +558,18 @@ def fetch_wikipedia_summary(title: str) -> str:
 
 
 # ═══════════════════════════════════════════════════════════════
-#  预设
-# ═══════════════════════════════════════════════════════════════
-
-PRESET_OPENINGS = [
-    "# === 王兵开局 ===",
-    "e4 e5 Nf3 Nc6 Bc4|意大利开局|C50",
-    "e4 e5 Nf3 Nc6 Bb5|西班牙开局|C60",
-    "e4 e5 Nf3 Nc6 Bb5 a6 Ba4 Nf6|西班牙莫菲防御|C78",
-    "e4 e5 Nf3 Nc6 Bc4 Bc5|意大利吉乌科钢琴|C54",
-    "e4 e5 Nf3 Nc6 Bc4 Nf6|双马防御|C55",
-    "e4 e5 Nf3 Nf6|俄罗斯防御|C42",
-    "e4 e5 Nf3 Nc6 d4|苏格兰开局|C45",
-    "e4 e5 f4|王翼弃兵|C30",
-    "e4 e5 Nc3|维也纳开局|C25",
-    "# === 西西里防御体系 ===",
-    "e4 c5|西西里防御|B20",
-    "e4 c5 Nf3 d6 d4 cxd4 Nxd4 Nf6 Nc3 a6|纳道尔夫变例|B90",
-    "e4 c5 Nf3 d6 d4 cxd4 Nxd4 Nf6 Nc3 g6|龙式变例|B35",
-    "e4 c5 Nf3 Nc6 d4 cxd4 Nxd4 Nf6 Nc3 e5|斯韦什尼科夫变例|B33",
-    "e4 c5 Nf3 d6 d4 cxd4 Nxd4 Nf6 Nc3 e6|舍维宁根变例|B80",
-    "# === 半开放防御 ===",
-    "e4 e6 d4 d5|法兰西防御|C00",
-    "e4 c6 d4 d5|卡罗康防御|B10",
-    "e4 Nf6|阿廖欣防御|B03",
-    "e4 g6|现代防御|B06",
-    "# === 后兵开局 ===",
-    "d4 d5 c4|后翼弃兵|D06",
-    "d4 d5 c4 dxc4|后翼弃兵接受|D20",
-    "d4 d5 c4 e6 Nc3 Nf6|后翼弃兵正统|D35",
-    "d4 d5 c4 e6 Nc3 Nf6 Bg5|后翼弃兵正统主变|D35",
-    "d4 d5 c4 c6|斯拉夫防御|D10",
-    "d4 d5 c4 c6 Nc3 Nf6 e3 e6 Nf3 Nbd7|半斯拉夫|D45",
-    "d4 d5 c4 e6 Nc3 Nf6 Nf3 c5 cxd5 Nxd5|半塔拉什|D41",
-    "# === 印度防御体系 ===",
-    "d4 Nf6 c4 e6 Nc3 Bb4|尼姆佐维奇防御|E20",
-    "d4 Nf6 c4 g6 Nc3 d5|格林菲尔德防御|D85",
-    "d4 Nf6 c4 g6 Nc3 Bg7 e4 d6|古印度防御|E60",
-    "d4 Nf6 c4 e6 Nf3 b6|新印度防御|E12",
-    "d4 Nf6 c4 e6 g3|卡塔兰开局|E00",
-    "d4 Nf6 c4 c5 d5 e6 Nc3 exd5 cxd5 d6|现代别诺尼|A60",
-    "# === 其他体系 ===",
-    "d4 f5|荷兰防御|A80",
-    "Nf3 d5|列蒂开局|A04",
-    "c4 e5|英国式开局|A10",
-    "e4 e5 Nf3 Nc6 Bb5 Nf6|西班牙柏林防御|C65",
-]
-
-
-# ═══════════════════════════════════════════════════════════════
 #  CLI
 # ═══════════════════════════════════════════════════════════════
 
 def main():
     import argparse
-    parser = argparse.ArgumentParser(description="Lichess 开局数据抓取 (Playwright)")
-    parser.add_argument("--batch", nargs="+", help="走法序列 'e4 e5 Nf3 Nc6 Bb5'")
-    parser.add_argument("--preset", action="store_true", help="批量抓取预设 35 个开局")
-    parser.add_argument("--headless", action="store_true", default=True,
-                        help="无头模式 (默认)")
-    parser.add_argument("--visible", action="store_true", help="显示浏览器窗口")
+    parser = argparse.ArgumentParser(description="Lichess 开局数据完整抓取")
+    parser.add_argument("--eco-only", action="store_true",
+                        help="仅用内置 ECO 表抓取(快,100+开局)")
+    parser.add_argument("--discover", action="store_true",
+                        help="从 lichess 自动发现 + 抓取(可能50-200个)")
+    parser.add_argument("--visible", action="store_true",
+                        help="可见浏览器")
     parser.add_argument("--output", type=str, default="opening_knowledge_fetched.json")
     parser.add_argument("--wiki", type=str, help="Wikipedia 摘要")
     args = parser.parse_args()
@@ -345,25 +577,49 @@ def main():
     headless = not args.visible
 
     if args.wiki:
-        desc = fetch_wikipedia_summary(args.wiki)
-        print(f"\nWikipedia ({args.wiki}):\n{desc[:800] if desc else '未找到'}")
+        print(fetch_wikipedia_summary(args.wiki))
         return
 
+    # 默认: eco-only + discover 都做
+    results = []
+
+    if args.eco_only or (not args.discover):
+        print("\n" + "=" * 60)
+        print("🚀 阶段A: 内置 ECO 表抓取")
+        print("=" * 60)
+        eco_results = asyncio.run(main_scrape_by_eco(headless))
+        results.extend(eco_results)
+
+    if args.discover or (not args.eco_only):
+        print("\n" + "=" * 60)
+        print("🚀 阶段B: lichess 自动发现")
+        print("=" * 60)
+        discover_results = asyncio.run(main_discover_and_scrape(headless))
+
+        # 合并去重 (按 name 去重)
+        existing_names = {r["name"] for r in results}
+        for dr in discover_results:
+            if dr["name"] not in existing_names:
+                results.append(dr)
+                existing_names.add(dr["name"])
+
+    # 过滤无效名称
+    bad_name_starts = {"chess opening", "lichess"}
+    results = [
+        r for r in results
+        if r.get("name", "").lower().strip() not in {"", "chess opening", "lichess.org"}
+        and not any(r.get("name", "").lower().startswith(b) for b in bad_name_starts)
+    ]
+
+    # 保存
     output_path = SCRIPT_DIR / args.output
+    with output_path.open("w", encoding="utf-8") as f:
+        json.dump(results, f, ensure_ascii=False, indent=2)
 
-    if args.batch:
-        lines = [" ".join(args.batch) + "||"]
-    elif args.preset:
-        lines = PRESET_OPENINGS
-    else:
-        print("用法:")
-        print("  python fetch_opening_data.py --preset")
-        print("  python fetch_opening_data.py --preset --visible   # 可见浏览器")
-        print("  python fetch_opening_data.py --batch e4 e5 Nf3 Nc6 Bb5")
-        print("  python fetch_opening_data.py --wiki 'Italian Game'")
-        return
-
-    asyncio.run(batch_scrape(lines, output_path, headless=headless))
+    print(f"\n{'='*60}")
+    print(f"✓ 完成! 共抓取 {len(results)} 个开局")
+    print(f"  输出: {output_path}")
+    print(f"\n运行 python merge_openings.py 将结果合并到 opening_knowledge.json")
 
 
 if __name__ == "__main__":
