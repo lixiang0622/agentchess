@@ -823,120 +823,242 @@ class ChessBoardRenderer:
     def render_text_slide(self, title: str = "", subtitle: str = "",
                           bg_color: tuple = None, style: str = "intro") -> Image.Image:
         """
-        渲染片头/片尾画面，支持渐变背景、大号标题、装饰元素。
+        渲染片头/片尾画面，专业美观设计。
 
         Args:
             title: 主标题
             subtitle: 副标题/描述文字
             bg_color: 背景基色（None=默认深蓝灰）
-            style: "intro"(片头) 或 "outro"(片尾)
+            style: "intro"(片头) / "intro_info"(信息页) / "outro"(片尾)
         """
         w, h = self.width, self.height
-        img = Image.new('RGB', (w, h), (10, 12, 18))
+        img = Image.new('RGB', (w, h), (12, 14, 22))
         draw = ImageDraw.Draw(img)
 
-        # ── 径向渐变背景（从中心向外渐变）──
+        # ── 对角线渐变背景 ──
+        import math
         for y in range(h):
-            t = y / h
-            r = int(18 + (45 - 18) * t * 0.5)
-            g = int(22 + (55 - 22) * t * 0.5)
-            b = int(38 + (72 - 38) * t * 0.5)
-            draw.line([(0, y), (w, y)], fill=(r, g, b))
+            for x in range(0, w, 4):
+                t_h = y / h
+                t_w = x / w
+                t = (t_h * 0.6 + t_w * 0.4)
+                r = int(15 + 35 * t * 0.55)
+                g = int(18 + 40 * t * 0.55)
+                b = int(28 + 55 * t * 0.55)
+                draw.line([(x, y), (min(x+3, w-1), y)], fill=(r, g, b))
 
-        # ── 装饰性网格线 ──
-        grid_color = (40, 42, 55, 80)
-        for x in range(0, w, 80):
-            draw.line([(x, 0), (x, h)], fill=grid_color[:3], width=1)
-        for y in range(0, h, 80):
-            draw.line([(0, y), (w, y)], fill=grid_color[:3], width=1)
+        # ── 同心圆光晕（中心高亮）──
+        cx, cy = w // 2, h // 2
+        for radius in range(50, max(w, h) // 2 + 100, 100):
+            alpha = max(0, 1.0 - radius / max(w, h) * 1.8)
+            color = (int(60 * alpha), int(70 * alpha), int(100 * alpha))
+            draw.ellipse(
+                [cx - radius, cy - radius, cx + radius, cy + radius],
+                outline=color, width=1
+            )
 
-        # ── 双棋盘装饰（左右各一个半透明棋盘）──
-        self._draw_decorative_board(draw, 60, h // 2 - 130, 220, alpha=0.18)
-        self._draw_decorative_board(draw, w - 280, h // 2 - 100, 180, alpha=0.12)
+        # ── 底部装饰横条 ──
+        for i in range(6):
+            bar_y = h - 80 + i * 12
+            alpha = 0.06 + i * 0.02
+            bar_color = (int(255 * alpha), int(215 * alpha), int(140 * alpha))
+            bar_w = int(w * (0.4 + i * 0.12))
+            draw.rectangle(
+                [w // 2 - bar_w // 2, bar_y, w // 2 + bar_w // 2, bar_y + 6],
+                fill=bar_color
+            )
 
-        # ── 社团 logo（放大）──
+        # ── 棋盘格装饰（四角）──
+        corner_size = 80
+        corners = [
+            (40, 40), (w - 40 - corner_size, 40),
+            (40, h - 40 - corner_size), (w - 40 - corner_size, h - 40 - corner_size)
+        ]
+        for cx_c, cy_c in corners:
+            self._draw_decorative_mini_board(draw, cx_c, cy_c, corner_size, alpha=0.10)
+
+        # ── 棋子图标装饰（散落的半透明棋子符号）──
+        piece_symbols = ["♔", "♕", "♖", "♗", "♘", "♙"]
+        decor_font = self._load_chinese_font(28)
+        decor_positions = [
+            (w // 5, h // 5), (w * 4 // 5, h // 5),
+            (w // 5, h * 4 // 5), (w * 4 // 5, h * 4 // 5),
+            (w // 3, h // 6), (w * 2 // 3, h // 6),
+            (w // 3, h * 5 // 6), (w * 2 // 3, h * 5 // 6),
+        ]
+        for i, (dx, dy) in enumerate(decor_positions):
+            symbol = piece_symbols[i % len(piece_symbols)]
+            draw.text((dx, dy), symbol, fill=(80, 75, 65), font=decor_font, anchor="mm")
+
+        # ── 社团 logo ──
         if self.logo_img:
-            logo_w = min(200, self.logo_img.width)
+            logo_size = 180 if style == "intro" else 120
+            logo_w = min(logo_size, self.logo_img.width)
             logo_h = int(self.logo_img.height * logo_w / self.logo_img.width)
             logo_resized = self.logo_img.resize((logo_w, logo_h), Image.LANCZOS)
+            # 给 logo 添加发光底
             logo_x = w // 2 - logo_w // 2
-            logo_y = h // 2 - 230
+            logo_y = h // 3 - logo_h // 2 if style == "intro" else h // 4 - logo_h // 2
+            glow_r = max(logo_w, logo_h) // 2 + 20
+            draw.ellipse(
+                [w//2 - glow_r, logo_y + logo_h//2 - glow_r,
+                 w//2 + glow_r, logo_y + logo_h//2 + glow_r],
+                fill=(40, 35, 28)
+            )
             img.paste(logo_resized, (logo_x, logo_y), logo_resized)
 
-        # ── 标题 ──
-        font_title = self._load_chinese_font(52)
-        font_subtitle = self._load_chinese_font(22)
+        # ── 加载字体 ──
+        font_title = self._load_chinese_font(56)
+        font_title_large = self._load_chinese_font(64)
+        font_subtitle = self._load_chinese_font(24)
+        font_body = self._load_chinese_font(20)
         font_small = self._load_chinese_font(16)
 
+        gold_light = (255, 235, 190)
+        gold = (210, 175, 120)
+        gold_dark = (155, 125, 80)
+        silver = (190, 185, 175)
+        silver_dark = (130, 125, 115)
+
         if style == "intro":
-            # 主标题在 logo 下方
-            title_y_pos = h // 2 + 20
+            # ── 主标题（logo下方）+ 阴影 ──
+            title_y_pos = h // 2 - 10 if self.logo_img else h // 2 - 60
             if title:
-                tb = draw.textbbox((0, 0), title, font=font_title)
+                f = font_title_large if len(title) <= 6 else font_title
+                tb = draw.textbbox((0, 0), title, font=f)
                 tw = tb[2] - tb[0]
+                # Drop shadow
+                draw.text((w // 2 - tw // 2 + 3, title_y_pos + 3), title,
+                          fill=(20, 18, 15), font=f)
                 draw.text((w // 2 - tw // 2, title_y_pos), title,
-                          fill=(235, 215, 170), font=font_title)
-                title_y_pos += tb[3] - tb[1] + 12
+                          fill=gold_light, font=f)
+                title_y_pos += tb[3] - tb[1] + 8
 
             if subtitle:
                 tb = draw.textbbox((0, 0), subtitle, font=font_subtitle)
                 sw = tb[2] - tb[0]
+                draw.text((w // 2 - sw // 2 + 2, title_y_pos + 2), subtitle,
+                          fill=(18, 16, 13), font=font_subtitle)
                 draw.text((w // 2 - sw // 2, title_y_pos), subtitle,
-                          fill=(175, 155, 130), font=font_subtitle)
+                          fill=silver, font=font_subtitle)
+                title_y_pos += tb[3] - tb[1] + 6
 
-            # 底部版本信息
-            version_text = "v5 · AI 驱动的国际象棋讲解视频生成器"
+            # 金色双线装饰
+            line_y = title_y_pos + 25
+            line_w = min(400, tw + 100)
+            draw.line([(w//2 - line_w//2, line_y), (w//2 + line_w//2, line_y)],
+                      fill=gold, width=1)
+            draw.line([(w//2 - line_w//2 + 30, line_y+4), (w//2 + line_w//2 - 30, line_y+4)],
+                      fill=gold_dark, width=2)
+
+            # 底部
+            version_text = "DeepBlue Chess · AI 讲解视频"
             tb = draw.textbbox((0, 0), version_text, font=font_small)
             vw = tb[2] - tb[0]
-            draw.text((w // 2 - vw // 2, h - 50), version_text,
-                      fill=(90, 85, 75), font=font_small)
+            draw.text((w//2 - vw//2, h-50), version_text,
+                      fill=(95, 90, 80), font=font_small)
 
-            # 装饰：标题下方的金色细线
-            line_y = title_y_pos + 18 if not subtitle else title_y_pos + 30
-            draw.line([(w // 3, line_y), (w * 2 // 3, line_y)],
-                      fill=(180, 150, 100), width=2)
+        elif style == "intro_info":
+            # ── 信息页（对局详情）──
+            title_lines = title.split("\n") if title else []
+            subtitle_lines = subtitle.split("\n") if subtitle else []
+
+            font_info_title = self._load_chinese_font(32)
+            font_info_detail = self._load_chinese_font(22)
+
+            info_y = h // 3
+
+            # 图标 + 标题
+            icon_text = "♟️"
+            draw.text((w//2 - 60, info_y), icon_text, fill=gold_light, font=font_info_title)
+            for i, line in enumerate(title_lines):
+                f = font_info_title
+                tb = draw.textbbox((0, 0), line, font=f)
+                tw = tb[2] - tb[0]
+                draw.text((w//2 - tw//2 + 2, info_y + 2), line, fill=(15, 13, 10), font=f)
+                draw.text((w//2 - tw//2, info_y), line, fill=gold_light, font=f)
+                info_y += tb[3] - tb[1] + 8
+
+            info_y += 20
+            # 分隔线
+            draw.line([(w//4, info_y), (w*3//4, info_y)], fill=gold_dark, width=1)
+            info_y += 20
+
+            for line in subtitle_lines:
+                tb = draw.textbbox((0, 0), line, font=font_body)
+                tw = tb[2] - tb[0]
+                draw.text((w//2 - tw//2, info_y), line, fill=silver, font=font_body)
+                info_y += tb[3] - tb[1] + 6
+
+            # 底部
+            credit = "🟦 深蓝棋评 · 深蓝国际象棋协会"
+            tb = draw.textbbox((0, 0), credit, font=font_small)
+            cw = tb[2] - tb[0]
+            draw.text((w//2 - cw//2, h-50), credit, fill=(100, 95, 85), font=font_small)
 
         else:  # outro
-            title_y_pos = h // 2 - 60
+            # ── 片尾 ──
+            title_y_pos = h // 3
+
+            # 受棋格启发的装饰边框
+            border_margin = 50
+            border_color = (50, 48, 40)
+            draw.rectangle(
+                [border_margin, border_margin, w-border_margin, h-border_margin],
+                outline=border_color, width=2
+            )
+            draw.rectangle(
+                [border_margin+10, border_margin+10, w-border_margin-10, h-border_margin-10],
+                outline=border_color, width=1
+            )
+
             if title:
-                tb = draw.textbbox((0, 0), title, font=font_title)
+                f = font_title_large if len(title) <= 8 else font_title
+                tb = draw.textbbox((0, 0), title, font=f)
                 tw = tb[2] - tb[0]
-                draw.text((w // 2 - tw // 2, title_y_pos), title,
-                          fill=(235, 215, 170), font=font_title)
+                draw.text((w//2 - tw//2 + 3, title_y_pos + 3), title, fill=(15, 13, 10), font=f)
+                draw.text((w//2 - tw//2, title_y_pos), title, fill=gold_light, font=f)
                 title_y_pos += tb[3] - tb[1] + 12
 
             if subtitle:
-                tb = draw.textbbox((0, 0), subtitle, font=font_subtitle)
-                sw = tb[2] - tb[0]
-                draw.text((w // 2 - sw // 2, title_y_pos), subtitle,
-                          fill=(175, 155, 130), font=font_subtitle)
+                for i, sub_line in enumerate(subtitle.split("\n")):
+                    f = font_subtitle if i == 0 else font_body
+                    clr = silver if i == 0 else silver_dark
+                    tb = draw.textbbox((0, 0), sub_line, font=f)
+                    sw = tb[2] - tb[0]
+                    draw.text((w//2 - sw//2, title_y_pos), sub_line, fill=clr, font=f)
+                    title_y_pos += tb[3] - tb[1] + 6
 
-            # 装饰线
-            line_y = title_y_pos + 20 if not subtitle else title_y_pos + 40
-            draw.line([(w // 3, line_y), (w * 2 // 3, line_y)],
-                      fill=(180, 150, 100), width=2)
+            # 金色线
+            line_y = title_y_pos + 25
+            draw.line([(w//4, line_y), (w*3//4, line_y)], fill=gold, width=2)
 
-            # 底部文字
-            credit = "深蓝国际象棋协会 · 深蓝棋评"
-            tb = draw.textbbox((0, 0), credit, font=font_small)
+            # 底部
+            credit = "深蓝国际象棋协会"
+            tb = draw.textbbox((0, 0), credit, font=font_subtitle)
             cw = tb[2] - tb[0]
-            draw.text((w // 2 - cw // 2, h - 50), credit,
-                      fill=(100, 95, 85), font=font_small)
+            draw.text((w//2 - cw//2, h-80), credit, fill=gold, font=font_subtitle)
 
         return img
 
-    def _draw_decorative_board(self, draw, x, y, size, alpha=0.25):
-        """绘制装饰性半透明棋盘轮廓"""
+    def _draw_decorative_mini_board(self, draw, x, y, size, alpha=0.25):
+        """绘制装饰性迷你棋盘（8x8+边框）"""
         sq = size // 8
-        # 亮度随 alpha 调整
-        light = tuple(int(45 * alpha) for _ in range(3))
+        border_color = tuple(int(70 * alpha) for _ in range(3))
+        light = tuple(int(55 * alpha) for _ in range(3))
         dark = tuple(int(35 * alpha) for _ in range(3))
+        # 边框
+        draw.rectangle([x-2, y-2, x+size+2, y+size+2], outline=border_color, width=1)
         for r in range(8):
             for f in range(8):
                 sx = x + f * sq
                 sy = y + (7 - r) * sq
                 color = light if (f + r) % 2 == 0 else dark
                 draw.rectangle([sx, sy, sx + sq, sy + sq], fill=color)
+
+    def _draw_decorative_board(self, draw, x, y, size, alpha=0.25):
+        """绘制装饰性半透明棋盘轮廓（兼容旧代码）"""
+        self._draw_decorative_mini_board(draw, x, y, size, alpha)
 
     # --------------- 序列渲染 ---------------
     def render_sequence(self, pgn_path: Path, output_dir: Path,
@@ -1094,7 +1216,7 @@ class ChessBoardRenderer:
         img_info = self.render_text_slide(
             info_text.split("\n")[0] if "\n" in info_text else info_text,
             "\n".join(info_text.split("\n")[1:]) if "\n" in info_text else "",
-            style="intro"
+            style="intro_info"
         )
         for _ in range(int(intro_secs * 0.4 * fps)):
             img_info.save(output_dir / f"frame_{frame_num:06d}.png")
