@@ -2510,5 +2510,1061 @@
       "卡斯帕罗夫",
       "卡尔森"
     ]
+  },
+  {
+    "eco_code": "C67",
+    "name": "西班牙开局柏林防御主线",
+    "moves_sequence": [
+      "e4",
+      "e5",
+      "Nf3",
+      "Nc6",
+      "Bb5",
+      "Nf6",
+      "O-O",
+      "Nxe4",
+      "d4",
+      "Nd6",
+      "Bxc6",
+      "dxc6",
+      "dxe5",
+      "Nf5",
+      "Qxd8+",
+      "Kxd8"
+    ],
+    "fen_signature": "r1bq1b1r/ppp2ppp/2p5/4Pn2/8/5N2/PPP2PPP/RNB2RK1 w - - 0 8",
+    "typical_plans": {
+      "white": [
+        "柏林墙残局：白方拥有更好的兵型(黑方叠兵)和王的活动性。",
+        "利用后翼多兵优势推进，避免过早兑换轻子。",
+        "走Nc3和b3，将马置于e4好位置。"
+      ],
+      "black": [
+        "虽然失去易位权，但黑方兵型虽然受损，双象和活跃的子力位置提供了充分补偿。",
+        "走...h6和...Be6，将王走到c8安全位置。",
+        "利用e线半开放线，车e8施压。"
+      ]
+    },
+    "common_traps": [
+      {
+        "name": "柏林墙陷阱",
+        "trigger_moves": [
+          "Nc3",
+          "h6",
+          "h3",
+          "Be6",
+          "b3",
+          "a5",
+          "Bb2",
+          "a4"
+        ],
+        "description": "白方若急于在王翼进攻，黑方通过后翼反击可以获得均势甚至优势。"
+      }
+    ],
+    "famous_practitioners": [
+      "克拉姆尼克",
+      "卡尔森",
+      "阿南德"
+    ]
+  },
+  {
+    "eco_code": "C80",
+    "name": "西班牙开局开放变例",
+    "moves_sequence": [
+      "e4",
+      "e5",
+      "Nf3",
+      "Nc6",
+      "Bb5",
+      "a6",
+      "Ba4",
+      "Nf6",
+      "O-O",
+      "Nxe4"
+    ],
+    "fen_signature": "r1bqkb1r/1ppp1ppp/p1n5/4p3/B3n3/5N2/PPPP1PPP/RNBQ1RK1 w - - 0 6",
+    "typical_plans": {
+      "white": [
+        "走d4开放中心，利用黑方e4马的暴露位置。",
+        "走Re1牵制黑马，配合d4和Nc3施加压力。",
+        "典型后续：d4 b5 Bb3 d5 dxe5 Be6 Nbd2。"
+      ],
+      "black": [
+        "用...b5和...d5巩固e4马的位置。",
+        "快速完成出子...Bc5或...Be7，寻求王的安全。",
+        "利用白方对e4马施加的压力做文章，适时回退或交换。"
+      ],
+      "famous_practitioners": [
+        "卡尔波夫",
+        "菲舍尔",
+        "阿南德"
+      ]
+    }
+  },
+  {
+    "eco_code": "C11",
+    "name": "法兰西防御斯坦尼茨变例",
+    "moves_sequence": [
+      "e4",
+      "e6",
+      "d4",
+      "d5",
+      "Nc3",
+      "Nf6",
+      "e5",
+      "Nfd7",
+      "f4",
+      "c5",
+      "Nf3",
+      "Nc6",
+      "Be3"
+    ],
+    "fen_signature": "r1bqkb1r/pp1n1ppp/2n1p3/2ppP3/3P1P2/2N1BN2/PPP3PP/R2QKB1R b KQkq - 4 6",
+    "typical_plans": {
+      "white": [
+        "经典的法兰西进攻：f4推进再Nf3巩固中心。",
+        "利用王翼空间优势，准备g4和h4冲锋。",
+        "防范黑方...c5对d4的压力和...Qb6的骚扰。"
+      ],
+      "black": [
+        "走...c5攻击d4兵链，配合...Nc6和...Qb6。",
+        "走...Be7和...O-O，稳住王翼。",
+        "伺机走...f6打开f线，在王翼反击。"
+      ],
+      "famous_practitioners": [
+        "斯坦尼茨",
+        "鲍特维尼克",
+        "菲舍尔"
+      ]
+    }
+  },
+  {
+    "eco_code": "B19",
+    "name": "卡罗康防御古典变例",
+    "moves_sequence": [
+      "e4",
+      "c6",
+      "d4",
+      "d5",
+      "Nc3",
+      "dxe4",
+      "Nxe4",
+      "Bf5",
+      "Ng3",
+      "Bg6",
+      "h4",
+      "h6",
+      "Nf3"
+    ],
+    "fen_signature": "r2qkbnr/pp2ppp1/2p3bp/8/3P3P/5NN1/PPP2PP1/R1BQKB1R b KQkq - 0 7",
+    "typical_plans": {
+      "white": [
+        "古典卡罗康变例：利用h4-h5骚扰黑方后翼象。",
+        "走Bd3兑掉黑方好象，残局中获得微小的结构优势。",
+        "在兑象后利用出子领先在王翼组织进攻。"
+      ],
+      "black": [
+        "走...Nd7和...e6完成兵链，后翼象在g6安然无恙。",
+        "走...Qc7和...O-O-O，从后翼发起反击。",
+        "注意防范白方h5驱赶和Bd3兑象的时机。"
+      ],
+      "famous_practitioners": [
+        "卡尔波夫",
+        "阿南德",
+        "斯维德勒"
+      ]
+    }
+  },
+  {
+    "eco_code": "D17",
+    "name": "后翼弃兵斯拉夫防御主变",
+    "moves_sequence": [
+      "d4",
+      "d5",
+      "c4",
+      "c6",
+      "Nf3",
+      "Nf6",
+      "Nc3",
+      "dxc4",
+      "a4",
+      "Bf5",
+      "e3",
+      "e6",
+      "Bxc4"
+    ],
+    "fen_signature": "rn1qkb1r/pp3ppp/2p1pn2/5b2/P1BP4/2N1PN2/1P3PPP/R1BQK2R b KQkq - 0 7",
+    "typical_plans": {
+      "white": [
+        "走Bxc4夺回兵，利用a线的空间优势。",
+        "走O-O和Qe2，准备e4中心推进。",
+        "防范黑方...Bb4的牵制和...Nbd7的调动。"
+      ],
+      "black": [
+        "走...Bb4牵制马c3，增加对e4的控制。",
+        "走...Nbd7和...O-O完成王翼出子。",
+        "注意对c4兵施压，伺机...c5或...e5反击。"
+      ],
+      "famous_practitioners": [
+        "鲍特维尼克",
+        "克拉姆尼克",
+        "格里修克"
+      ]
+    }
+  },
+  {
+    "eco_code": "D43",
+    "name": "后翼弃兵半斯拉夫梅兰变例",
+    "moves_sequence": [
+      "d4",
+      "d5",
+      "c4",
+      "c6",
+      "Nf3",
+      "Nf6",
+      "Nc3",
+      "e6",
+      "e3",
+      "Nbd7",
+      "Bd3",
+      "dxc4",
+      "Bxc4",
+      "b5"
+    ],
+    "fen_signature": "r1bqkb1r/p2n1ppp/2p1pn2/1p6/2BP4/2N1PN2/PP3PPP/R1BQK2R w KQkq - 0 8",
+    "typical_plans": {
+      "white": [
+        "梅兰变例：Bd3应对b5，保持弹性。",
+        "走e4中心突破是主要的战略目标。",
+        "注意后方黑方...c5的反击和Bb7的控制。"
+      ],
+      "black": [
+        "走...b5扩展后翼空间，再...Bb7和...a6。",
+        "走...c5反击中心，寻求主动权。",
+        "快速完成出子...Be7和...O-O。"
+      ]
+    },
+    "common_traps": [
+      {
+        "name": "梅兰陷阱",
+        "trigger_moves": [
+          "Bd3",
+          "b4",
+          "Na4",
+          "Be7",
+          "O-O",
+          "O-O",
+          "a3",
+          "bxa3",
+          "bxa3",
+          "c5"
+        ],
+        "description": "白方若对b4处理不当，黑方b4-b5-b4的节奏可以打开后翼。",
+        "refutation": [
+          "...Nc6"
+        ]
+      }
+    ],
+    "famous_practitioners": [
+      "克拉姆尼克",
+      "阿南德",
+      "格尔凡德"
+    ]
+  },
+  {
+    "eco_code": "D52",
+    "name": "后翼弃兵剑桥泉变例",
+    "moves_sequence": [
+      "d4",
+      "d5",
+      "c4",
+      "e6",
+      "Nc3",
+      "Nf6",
+      "Bg5",
+      "Nbd7",
+      "e3",
+      "c6",
+      "Nf3",
+      "Qa5"
+    ],
+    "fen_signature": "r1b1kb1r/pp1n1ppp/2p1pn2/q2p2B1/2PP4/2N1PN2/PP3PPP/R2QKB1R w KQkq - 5 6",
+    "typical_plans": {
+      "white": [
+        "面对Qa5的牵制，走Bxf6或Nd2等一手。",
+        "走cxd5打开中心，利用黑方后翼出子未完成。",
+        "利用黑方后过早出动的弱点，寻找攻击机会。"
+      ],
+      "black": [
+        "用Qa5牵制白方c3马和Bg5象，施加压力。",
+        "走...Ne4攻击牵制链，或...Bb4加码。",
+        "注意白方cxd5后的中心开放，及时完成出子。"
+      ],
+      "famous_practitioners": [
+        "卡帕布兰卡",
+        "拉斯克",
+        "阿廖欣"
+      ]
+    }
+  },
+  {
+    "eco_code": "D60",
+    "name": "后翼弃兵正统防御塔拉什变例",
+    "moves_sequence": [
+      "d4",
+      "d5",
+      "c4",
+      "e6",
+      "Nc3",
+      "Nf6",
+      "Bg5",
+      "Be7",
+      "e3",
+      "O-O",
+      "Nf3",
+      "Nbd7",
+      "Rc1"
+    ],
+    "fen_signature": "r1bq1rk1/pp1nbppp/2p1pn2/3p2B1/2PP4/2N1PN2/PP3PPP/2RQKB1R b K - - 5 7",
+    "typical_plans": {
+      "white": [
+        "用Rc1预先占据c线，再cxd5兑换获得d线控制权。",
+        "走Bd3和O-O完成出子，准备e4推进。",
+        "典型计划：cxd5 exd5 Bd3 Re8 O-O Nf8 Qc2。"
+      ],
+      "black": [
+        "走...c6和...a6巩固阵地，防守白方的后翼压力。",
+        "走...Ne4利用牵制，或...h6试探白象。",
+        "利用...dxc4和...Nd5争夺中心。"
+      ],
+      "famous_practitioners": [
+        "塔拉什",
+        "阿廖欣",
+        "鲍特维尼克"
+      ]
+    }
+  },
+  {
+    "eco_code": "D70",
+    "name": "后翼弃兵新格林菲尔德",
+    "moves_sequence": [
+      "d4",
+      "Nf6",
+      "c4",
+      "g6",
+      "f3",
+      "d5",
+      "cxd5",
+      "Nxd5",
+      "e4"
+    ],
+    "fen_signature": "rnbqkb1r/ppp1pp1p/6p1/3n4/3PP3/5P2/PP4PP/RNBQKBNR b KQkq - 1 4",
+    "typical_plans": {
+      "white": [
+        "走f3加固e4，建立不可动摇的兵中心。",
+        "走Be3和Nc3，构筑稳固的防御。",
+        "当黑方...c5反击时，用d5维持中心优势。"
+      ],
+      "black": [
+        "走...Nb6或...Nxc3，破坏白方兵型。",
+        "走...Bg7和...O-O，再...c5从侧翼冲击中心。",
+        "注意白方f3后王翼进攻的前奏(Bc4,Ne2)。"
+      ],
+      "famous_practitioners": [
+        "卡尔森",
+        "阿罗尼扬",
+        "格尔凡德"
+      ]
+    }
+  },
+  {
+    "eco_code": "E25",
+    "name": "尼姆佐维奇防御萨米什变例",
+    "moves_sequence": [
+      "d4",
+      "Nf6",
+      "c4",
+      "e6",
+      "Nc3",
+      "Bb4",
+      "a3",
+      "Bxc3+",
+      "bxc3",
+      "c5",
+      "e3",
+      "O-O"
+    ],
+    "fen_signature": "rnbq1rk1/pp1p1ppp/4pn2/2p5/2PP4/P1P1P3/5PPP/R1BQKBNR w KQkq - 0 6",
+    "typical_plans": {
+      "white": [
+        "接受叠兵(c线叠兵)，换取双象和强中心。",
+        "用Bd3和Ne2巩固e4，再e4推进。",
+        "利用双象优势在中局争取主动。"
+      ],
+      "black": [
+        "立刻用...c5攻击白方中心，不让白方从容巩固。",
+        "走...Nc6和...d6，将压力集中在d4格。",
+        "寻找白方c线叠兵的弱点，进行持久战。"
+      ],
+      "famous_practitioners": [
+        "萨米什",
+        "菲舍尔",
+        "阿南德"
+      ]
+    }
+  },
+  {
+    "eco_code": "E32",
+    "name": "尼姆佐维奇防御列宁格勒变例",
+    "moves_sequence": [
+      "d4",
+      "Nf6",
+      "c4",
+      "e6",
+      "Nc3",
+      "Bb4",
+      "Qc2",
+      "d5",
+      "cxd5",
+      "exd5",
+      "Bg5"
+    ],
+    "fen_signature": "rnbqk2r/ppp2ppp/5n2/3p2B1/1b1P4/2N5/PPQ1PPPP/R3KBNR b KQkq - 4 5",
+    "typical_plans": {
+      "white": [
+        "Qc2防御c3马，保持双象和灵活性。",
+        "走Bg5牵制，增加对d5的压力。",
+        "走e3和Bd3，完成出子并准备e4。"
+      ],
+      "black": [
+        "走...c5或...O-O，寻求均衡。",
+        "走...h6试探白象，或...Nc6发展。",
+        "利用a5-e1斜线Bb4的牵制压力。"
+      ],
+      "famous_practitioners": [
+        "鲍特维尼克",
+        "塔尔",
+        "克拉姆尼克"
+      ]
+    }
+  },
+  {
+    "eco_code": "E80",
+    "name": "古印度防御萨米什变例",
+    "moves_sequence": [
+      "d4",
+      "Nf6",
+      "c4",
+      "g6",
+      "Nc3",
+      "Bg7",
+      "e4",
+      "d6",
+      "f3"
+    ],
+    "fen_signature": "rnbqk2r/ppp1ppbp/3p1np1/8/2PPP3/2N2P2/PP4PP/R1BQKBNR b KQkq - 0 5",
+    "typical_plans": {
+      "white": [
+        "萨米什变例：走f3加固中心，准备长易位王翼兵风暴。",
+        "走Be3、Qd2、O-O-O，再h4-h5和g4冲锋。",
+        "防范黑方...c5和...b5的后翼反击。"
+      ],
+      "black": [
+        "走...O-O和...c5反击中心。",
+        "走...Nc6或...a6和...b5，在后方制造反击。",
+        "必要时走...e5封闭中心，限制白方攻势。"
+      ],
+      "famous_practitioners": [
+        "萨米什",
+        "鲍特维尼克",
+        "卡斯帕罗夫"
+      ]
+    }
+  },
+  {
+    "eco_code": "E90",
+    "name": "古印度防御古典变例",
+    "moves_sequence": [
+      "d4",
+      "Nf6",
+      "c4",
+      "g6",
+      "Nc3",
+      "Bg7",
+      "e4",
+      "d6",
+      "Nf3",
+      "O-O",
+      "Be2"
+    ],
+    "fen_signature": "rnbq1rk1/ppp1ppbp/3p1np1/8/2PPP3/2N2N2/PP2BPPP/R1BQK2R b KQ - 4 6",
+    "typical_plans": {
+      "white": [
+        "古典变例：稳健发展Be2和O-O，保持灵活性。",
+        "走Re1和Bf1，再d5封闭中心。",
+        "在d5封闭后走b4、c5推进后翼。"
+      ],
+      "black": [
+        "走...e5或...Nbd7，准备...c5反击。",
+        "走...Ne8和...f5的王翼兵冲锋。",
+        "必要时弃兵打开局面，利用象g7的威力。"
+      ],
+      "famous_practitioners": [
+        "菲舍尔",
+        "卡斯帕罗夫",
+        "格尔凡德"
+      ]
+    }
+  },
+  {
+    "eco_code": "A06",
+    "name": "列蒂开局王翼印度进攻",
+    "moves_sequence": [
+      "Nf3",
+      "d5",
+      "g3",
+      "c6",
+      "Bg2",
+      "Bg4"
+    ],
+    "fen_signature": "rn1qkbnr/pp2pppp/2p5/3p4/6b1/5NP1/PPPPPPBP/RNBQK2R w KQkq - 2 3",
+    "typical_plans": {
+      "white": [
+        "堡垒象Bg2控制中心，走O-O和c4。",
+        "走Ne5驱赶Bg4象，或走c4直接挑战d5。",
+        "利用堡垒象的远程压力，在中心争夺空间。"
+      ],
+      "black": [
+        "走...Bg4牵制Nf3，间接对d4施加压力。",
+        "走...e6和...Nf6稳固出子。",
+        "选择...dxc4或...c5反击白方布局。"
+      ],
+      "famous_practitioners": [
+        "列蒂",
+        "卡尔森",
+        "阿南德"
+      ]
+    }
+  },
+  {
+    "eco_code": "A15",
+    "name": "英国式开局对称变例",
+    "moves_sequence": [
+      "c4",
+      "c5",
+      "Nc3",
+      "Nc6",
+      "g3",
+      "g6",
+      "Bg2",
+      "Bg7",
+      "Nf3",
+      "Nf6"
+    ],
+    "fen_signature": "r1bqk2r/pp1pppbp/2n2np1/2p5/2P5/2N2NP1/PP1PPPBP/R1BQK2R w KQkq - 4 6",
+    "typical_plans": {
+      "white": [
+        "对称结构：走O-O和d3，保持弹性。",
+        "走a3和Rb1，准备b4的后翼扩张。",
+        "也可以走e4占据中心，转入中心进攻。"
+      ],
+      "black": [
+        "对称出子保持均衡，寻找白方的不均衡点。",
+        "走...d6和...O-O，等待时机。",
+        "伺机...a6和...Rb8，准备...b5。"
+      ],
+      "famous_practitioners": [
+        "卡尔森",
+        "卡斯帕罗夫",
+        "阿南德"
+      ]
+    }
+  },
+  {
+    "eco_code": "A20",
+    "name": "英国式开局西西里反击",
+    "moves_sequence": [
+      "c4",
+      "e5",
+      "Nc3",
+      "Nf6",
+      "g3",
+      "Bb4"
+    ],
+    "fen_signature": "rnbqk2r/pppp1ppp/5n2/4p3/1bP5/2N3P1/PP1PPP1P/R1BQKBNR w KQkq - 2 3",
+    "typical_plans": {
+      "white": [
+        "走Bg2堡垒象，O-O巩固王翼。",
+        "走Nd5利用黑方Bb4的牵制制造战术机会。",
+        "在中心走e3和d4，获取空间。"
+      ],
+      "black": [
+        "用Bb4牵制马c3，走...O-O和...Re8。",
+        "走...c6和...d5在中心反击。",
+        "利用白方c4兵可能成为弱点。"
+      ],
+      "famous_practitioners": [
+        "卡斯帕罗夫",
+        "卡尔森",
+        "克拉姆尼克"
+      ]
+    }
+  },
+  {
+    "eco_code": "A25",
+    "name": "英国式开局反向龙式",
+    "moves_sequence": [
+      "c4",
+      "e5",
+      "Nc3",
+      "Nc6",
+      "g3",
+      "g6",
+      "Bg2",
+      "Bg7",
+      "e3"
+    ],
+    "fen_signature": "r1bqk1nr/pppp1pbp/2n3p1/4p3/2P5/2N1P1P1/PP1P1PBP/R1BQK1NR b KQkq - 0 4",
+    "typical_plans": {
+      "white": [
+        "走Nge2和O-O，再d4打开中心。",
+        "利用象g2的长斜线压力。",
+        "在d4兑换后走d3和f4形成王翼进攻。"
+      ],
+      "black": [
+        "走...Nge7和...O-O，再...d6和...Be6。",
+        "伺机...f5发起王翼反击。",
+        "在d4兑换后利用...d5争取平衡。"
+      ],
+      "famous_practitioners": [
+        "卡尔森",
+        "卡尔波夫",
+        "阿南德"
+      ]
+    }
+  },
+  {
+    "eco_code": "A30",
+    "name": "英国式开局对称边兵",
+    "moves_sequence": [
+      "c4",
+      "c5",
+      "Nf3",
+      "Nf6",
+      "Nc3",
+      "Nc6",
+      "e3",
+      "e6",
+      "d4",
+      "d5"
+    ],
+    "fen_signature": "r1bqkb1r/pp3ppp/2n1pn2/2pp4/2PP4/2N1PN2/PP3PPP/R1BQKB1R w KQkq - 0 6",
+    "typical_plans": {
+      "white": [
+        "对称中心，走Bd3和O-O，准备e4推进。",
+        "利用cxd5兑换后形成的孤兵局面组织进攻。",
+        "走b3和Bb2加强中心控制。"
+      ],
+      "black": [
+        "维持对称结构，伺机...cxd4破坏白方兵型。",
+        "走...Be7和...O-O，稳固防守。",
+        "在中心寻找反击时机。"
+      ],
+      "famous_practitioners": [
+        "阿南德",
+        "卡尔森",
+        "格尔凡德"
+      ]
+    }
+  },
+  {
+    "eco_code": "A34",
+    "name": "英国式开局刺猬结构",
+    "moves_sequence": [
+      "c4",
+      "c5",
+      "Nf3",
+      "Nf6",
+      "Nc3",
+      "e6",
+      "g3",
+      "b6",
+      "Bg2",
+      "Bb7",
+      "O-O",
+      "Be7",
+      "d4"
+    ],
+    "fen_signature": "r2qk2r/pb1pbppp/1p2pn2/2p5/2PP4/2N2NP1/PP2PPBP/R1BQ1RK1 b kq - 0 8",
+    "typical_plans": {
+      "white": [
+        "面对刺猬结构：利用空间优势稳步扩大。",
+        "走e3和Qe2，准备e4推进。",
+        "防范黑方...d5的中心突破。"
+      ],
+      "black": [
+        "典型的刺猬结构：...a6、...b6、...Bb7、...Be7、...d6、...Nbd7。",
+        "寻找...d5的精确突破时机。",
+        "在...d5突破后利用动态因素争取主动权。"
+      ],
+      "famous_practitioners": [
+        "阿南德",
+        "卡尔森",
+        "阿罗尼扬"
+      ]
+    }
+  },
+  {
+    "eco_code": "A85",
+    "name": "荷兰防御列宁格勒变例",
+    "moves_sequence": [
+      "d4",
+      "f5",
+      "c4",
+      "Nf6",
+      "Nc3",
+      "g6",
+      "g3",
+      "Bg7",
+      "Bg2",
+      "O-O",
+      "Nf3",
+      "d6",
+      "O-O"
+    ],
+    "fen_signature": "rnbq1rk1/ppp1p1bp/3p1np1/5p2/2PP4/2N2NP1/PP1BPPBP/R2QK2R b KQ - 0 8",
+    "typical_plans": {
+      "white": [
+        "巩固中心d4-c4，走Qc2和b3，在后翼扩展。",
+        "利用空间优势限制黑方子力活动。",
+        "防范黑方...e5的中心突破。"
+      ],
+      "black": [
+        "列宁格勒荷兰：堡垒象Bg7，准备...e5。",
+        "走...Qe8和...e5或...c6准备d5。",
+        "利用f5兵在王翼的空间优势，组织进攻。"
+      ],
+      "famous_practitioners": [
+        "鲍特维尼克",
+        "塔尔",
+        "阿南德"
+      ]
+    }
+  },
+  {
+    "eco_code": "B01",
+    "name": "斯堪的纳维亚防御",
+    "moves_sequence": [
+      "e4",
+      "d5",
+      "exd5",
+      "Qxd5",
+      "Nc3",
+      "Qa5"
+    ],
+    "fen_signature": "rnb1kbnr/ppp1pppp/8/q7/8/2N5/PPPP1PPP/R1BQKBNR w KQkq - 2 3",
+    "typical_plans": {
+      "white": [
+        "走d4占领中心，利用出子领先(Nc3获得了一步)。",
+        "走Bc4和Nf3快速发展，Qa5后需退回d8或a5-h5对角线。",
+        "利用空间和出子优势，在王翼组织进攻。"
+      ],
+      "black": [
+        "后被迫退到a5，需要小心白方的攻击。",
+        "走...c6和...Nf6，尽快完成出子。",
+        "保持稳固，寻找...Bg4或...Nbd7的反击。"
+      ],
+      "famous_practitioners": [
+        "卡尔森",
+        "阿南德",
+        "伊万丘克"
+      ]
+    }
+  },
+  {
+    "eco_code": "C20",
+    "name": "中心开局",
+    "moves_sequence": [
+      "e4",
+      "e5",
+      "d4",
+      "exd4",
+      "Qxd4",
+      "Nc6"
+    ],
+    "fen_signature": "r1bqkbnr/pppp1ppp/2n5/8/3QP3/8/PPP2PPP/RNB1KBNR w KQkq - 2 3",
+    "typical_plans": {
+      "white": [
+        "过早出动后，需要小心黑方...Nc6驱赶后的节奏损失。",
+        "走Qe3或Qd1，重新调整后的位置。",
+        "利用黑方...Nc6获得的时间走Nc3和Bd2发展。"
+      ],
+      "black": [
+        "走...Nc6驱赶白后，获得出子领先。",
+        "走...Nf6攻击e4兵，或...Bc5占据斜线。",
+        "利用白方后被迫退让的时间完成出子。"
+      ],
+      "famous_practitioners": [
+        "摩菲",
+        "斯帕斯基",
+        "拉森"
+      ]
+    }
+  },
+  {
+    "eco_code": "C21",
+    "name": "丹麦弃兵",
+    "moves_sequence": [
+      "e4",
+      "e5",
+      "d4",
+      "exd4",
+      "c3"
+    ],
+    "fen_signature": "rnbqkbnr/pppp1ppp/8/8/3pP3/2P5/PP3PPP/RNBQKBNR b KQkq - 0 3",
+    "typical_plans": {
+      "white": [
+        "弃一兵甚至两兵换取巨大出子优势。",
+        "走Bc4和Nxc3，全力进攻。",
+        "走Nf3和O-O，把所有子力指向f7格。"
+      ],
+      "black": [
+        "可以接受弃兵走...dxc3，也可以走...d5拒绝。",
+        "接受后必须精确防守，走...d5阻止白方猛攻。",
+        "走...Bb4或...Nc6快速出子，反击白方暴露的王。"
+      ],
+      "famous_practitioners": [
+        "安德森",
+        "摩菲",
+        "阿廖欣"
+      ]
+    }
+  },
+  {
+    "eco_code": "C23",
+    "name": "主教开局",
+    "moves_sequence": [
+      "e4",
+      "e5",
+      "Bc4"
+    ],
+    "fen_signature": "rnbqkbnr/pppp1ppp/8/4p3/2B1P3/8/PPPP1PPP/RNBQK1NR b KQkq - 1 2",
+    "typical_plans": {
+      "white": [
+        "Bc4直接瞄准f7弱点，推迟Nf3出子。",
+        "可以后续f4转入王翼弃兵，或走d3和Nf3转入意大利。",
+        "保持灵活性，可以走c3-d4或f2-f4。"
+      ],
+      "black": [
+        "走...Nf6攻击e4兵，或...Bc5对称。",
+        "走...Nc6和...Bc5的标准发展。",
+        "注意防范白方f4和Qh5的攻王威胁。"
+      ],
+      "famous_practitioners": [
+        "拉森",
+        "阿南德",
+        "菲舍尔"
+      ]
+    }
+  },
+  {
+    "eco_code": "D00",
+    "name": "后翼弃兵拒斯拉夫",
+    "moves_sequence": [
+      "d4",
+      "d5",
+      "c4",
+      "e6",
+      "Nc3",
+      "c5",
+      "cxd5",
+      "exd5",
+      "Nf3",
+      "Nc6",
+      "g3"
+    ],
+    "fen_signature": "r1bqkbnr/pp3ppp/2n5/2pp4/3P4/2N2NP1/PP2PP1P/R1BQKB1R b KQkq - 2 6",
+    "typical_plans": {
+      "white": [
+        "塔拉什防御式结构：接受孤兵d4，换取子力活跃。",
+        "走Bg2和O-O，利用双象优势。",
+        "走Bf4或Bg5，再Re1和Ne5。"
+      ],
+      "black": [
+        "面对白方孤兵，走...Nf6和...Be7。",
+        "对d4兵施加压力：...Be6、...Rc8。",
+        "注意防范白方d5的突破和Bxf6的破坏。"
+      ],
+      "famous_practitioners": [
+        "塔拉什",
+        "斯帕斯基",
+        "卡斯帕罗夫"
+      ]
+    }
+  },
+  {
+    "eco_code": "D06",
+    "name": "后翼弃兵防御",
+    "moves_sequence": [
+      "d4",
+      "d5",
+      "c4",
+      "e6",
+      "Nc3",
+      "Nf6",
+      "Nf3",
+      "Be7",
+      "cxd5",
+      "exd5",
+      "Bg5"
+    ],
+    "fen_signature": "rnbqk2r/ppp1bppp/5n2/3p2B1/3P4/2N2N2/PP2PPPP/R2QKB1R b KQkq - 0 6",
+    "typical_plans": {
+      "white": [
+        "正统防御结构，走cxd5兑换后，Bg5牵制黑马。",
+        "走e3和Bd3，准备在中心e4突破。",
+        "利用黑方黑格象在e7的被动位置。"
+      ],
+      "black": [
+        "走...c6巩固d5，走...Nbd7和...O-O。",
+        "走...h6试探白象，或...Ne4反击。",
+        "在适当时机...c5反击中心。"
+      ],
+      "famous_practitioners": [
+        "阿廖欣",
+        "卡帕布兰卡",
+        "鲍特维尼克"
+      ]
+    }
+  },
+  {
+    "eco_code": "E15",
+    "name": "女王的印度卡帕布兰卡变例",
+    "moves_sequence": [
+      "d4",
+      "Nf6",
+      "c4",
+      "e6",
+      "Nf3",
+      "b6",
+      "g3",
+      "Ba6",
+      "b3",
+      "Bb4+",
+      "Bd2",
+      "Be7"
+    ],
+    "fen_signature": "rn1qk2r/p1ppbppp/bp2pn2/8/2PP4/1P3NP1/P2BPPBP/RN1QK2R w KQkq - 5 7",
+    "typical_plans": {
+      "white": [
+        "堡垒象加b3防守，走Bg2和O-O。",
+        "利用中心空间优势，走Nc3和Qc2。",
+        "在e4推进获取更大的空间。"
+      ],
+      "black": [
+        "走...Ba6威胁c4兵，间接施加压力。",
+        "走...Bb4+骚扰，换取黑格象兑掉。",
+        "走...d5或...c5反击中心。"
+      ],
+      "famous_practitioners": [
+        "卡帕布兰卡",
+        "鲍特维尼克",
+        "卡尔森"
+      ]
+    }
+  },
+  {
+    "eco_code": "E40",
+    "name": "尼姆佐维奇防御鲁宾斯坦变例",
+    "moves_sequence": [
+      "d4",
+      "Nf6",
+      "c4",
+      "e6",
+      "Nc3",
+      "Bb4",
+      "e3",
+      "O-O",
+      "Ne2"
+    ],
+    "fen_signature": "rnbq1rk1/pppp1ppp/4pn2/8/1bPP4/2N1P3/PP2NPPP/R1BQKB1R b KQ - 4 5",
+    "typical_plans": {
+      "white": [
+        "鲁宾斯坦变例：Ne2避免叠兵，保持弹性。",
+        "走a3赶象，再e4推进中心。",
+        "利用Ne2的灵活性，可以走Ng3加强王翼。"
+      ],
+      "black": [
+        "走...d5挑战白方中心，或...c5从侧翼反击。",
+        "走...Nc6和...Re8，准备...e5。",
+        "在适当时候考虑Bxc3，破坏白方兵型。"
+      ],
+      "famous_practitioners": [
+        "鲁宾斯坦",
+        "菲舍尔",
+        "阿南德"
+      ]
+    }
+  },
+  {
+    "eco_code": "C26",
+    "name": "维也纳开局福克贝尔变例",
+    "moves_sequence": [
+      "e4",
+      "e5",
+      "Nc3",
+      "Nf6",
+      "f4",
+      "d5",
+      "fxe5",
+      "Nxe4"
+    ],
+    "fen_signature": "rnbqkb1r/ppp2ppp/8/3pP3/4n3/2N5/PPPP2PP/R1BQKBNR w KQkq - 0 5",
+    "typical_plans": {
+      "white": [
+        "接受激烈的中心争夺，走Nf3和d4。",
+        "走Qf3或Be3，在开放局面中攻王。",
+        "尖鋭的维也纳变例，需要双方精确计算。"
+      ],
+      "black": [
+        "走...Nxe4接受挑战，再...Bc5或...Be7。",
+        "走...Nc6配合...Be7和...O-O。",
+        "注意白方Qh5和Bc4的攻王配合。"
+      ],
+      "famous_practitioners": [
+        "福克贝尔",
+        "斯帕斯基",
+        "塔尔"
+      ]
+    }
+  },
+  {
+    "eco_code": "B52",
+    "name": "西西里防御莫斯科变例",
+    "moves_sequence": [
+      "e4",
+      "c5",
+      "Nf3",
+      "d6",
+      "Bb5+"
+    ],
+    "fen_signature": "rnbqkbnr/pp2pppp/3p4/1Bp5/4P3/5N2/PPPP1PPP/RNBQK2R b KQkq - 1 3",
+    "typical_plans": {
+      "white": [
+        "避免大量西西里理论，用Bb5+转入莫斯科变例。",
+        "走Bxd7+兑换或退Ba4施加压力。",
+        "利用c3和d4的中心推进。"
+      ],
+      "black": [
+        "最常见的应对...Bd7挡将，兑象简化。",
+        "也可走...Nd7或...Nc6。",
+        "兑象后在中心寻找反击机会。"
+      ],
+      "famous_practitioners": [
+        "卡尔森",
+        "卡尔波夫",
+        "阿南德"
+      ]
+    }
   }
 ]
