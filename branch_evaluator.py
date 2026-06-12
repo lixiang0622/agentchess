@@ -86,7 +86,7 @@ def evaluate_branch_trigger(
     # ═══════════════════════════════════════════════
     score_diff = abs(step.get("score_diff", 0))
     quality = step.get("quality", "正常")
-    if quality in ("失误", "漏杀", "送子") or score_diff > thresholds["mistake_diff"]:
+    if quality in ("失误", "漏杀", "送杀", "送子") or score_diff > thresholds["mistake_diff"]:
         triggers.append({
             "code": "MISTAKE",
             "priority": 50,

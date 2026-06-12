@@ -59,7 +59,7 @@ def classify_error_steps(steps: list) -> list[dict]:
         ...
     ]
     """
-    error_steps = [s for s in steps if s.get("quality") in ("失误", "漏杀", "送子", "疑问")]
+    error_steps = [s for s in steps if s.get("quality") in ("失误", "漏杀", "送杀", "送子", "疑问")]
 
     classified = []
     for step in error_steps:
@@ -114,7 +114,7 @@ def _build_side_training_points(
     for cat, cat_steps in by_category.items():
         total_loss = sum(abs(s.get("score_diff", 0)) for s in cat_steps)
         quality_score = sum(
-            4 if s["quality"] == "送子" else
+            4 if s["quality"] in ("送杀", "送子") else
             3 if s["quality"] in ("漏杀", "失误") else
             2
             for s in cat_steps

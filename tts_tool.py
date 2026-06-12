@@ -30,6 +30,7 @@ QUALITY_SSML_MAP = {
     "疑问":   {"rate": "-10%", "pitch": "-3%",  "volume": "medium"},
     "失误":   {"rate": "-20%", "pitch": "-8%",  "volume": "medium"},
     "漏杀":   {"rate": "-15%", "pitch": "-5%",  "volume": "loud"},
+    "送杀":   {"rate": "-20%", "pitch": "-10%", "volume": "loud"},
     "送子":   {"rate": "-25%", "pitch": "-12%", "volume": "loud"},
 }
 

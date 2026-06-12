@@ -132,7 +132,7 @@ def detect_critical_moments(
 
         # ---- 着法质量 ----
         quality = step.get("quality", "正常")
-        if quality in ("送子", "漏杀"):
+        if quality in ("送子", "送杀", "漏杀"):
             score += WEIGHTS["quality"]
             reasons.append(f"严重失误 ({quality})")
             categories.append("critical_blunder")
@@ -182,7 +182,7 @@ def detect_critical_moments(
         # 如果前一步是大漏着（对方送子），当前步可能是惩罚招
         if i > 0:
             prev_quality = steps[i - 1].get("quality", "")
-            if prev_quality in ("送子", "漏杀"):
+            if prev_quality in ("送子", "送杀", "漏杀"):
                 score += 5  # 小幅加分，因为观众想知道"怎么惩罚"
                 if "惩罚对手失误" not in reasons:
                     reasons.append("惩罚对手失误的关键应着")

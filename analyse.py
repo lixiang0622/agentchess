@@ -238,19 +238,18 @@ for move_number, move in enumerate(game.mainline_moves(), start=1):
 
     if diff_from_perspective <= -300:
         # 评分暴跌 > 3.0
-        if had_mate_threat:
+        if gave_mate_to_opponent:
+            # 走了这一步直接送给对手 ≤10步杀棋 → 送杀
+            quality = "送杀"
+        elif had_mate_threat:
             # 有明确的杀棋机会却错过了 → 漏杀
-            quality = "漏杀"
-        elif gave_mate_to_opponent:
-            # 走棋后给了对手短步杀 → 漏杀
             quality = "漏杀"
         elif side_is_losing:
             quality = "送子"
         else:
             # 大幅评估下降但无杀棋机会 → 也可能是送子
-            # 进一步判断: 用candidates中最佳走法是否为杀棋来区分
             best_score_cp = best_info["score"].white().score()
-            if abs(best_score_cp) >= 500 and not had_mate_threat:
+            if abs(best_score_cp) >= 500:
                 quality = "送子"
             else:
                 quality = "漏杀"
@@ -267,7 +266,7 @@ for move_number, move in enumerate(game.mainline_moves(), start=1):
     else:
         quality = "妙手"
 
-    is_critical = quality in ("漏杀", "送子", "失误")
+    is_critical = quality in ("漏杀", "送杀", "送子", "失误")
 
     # ---- 第三步：如果是失误，回退做深度 MultiPV 重分析 ----
     recommended = None
@@ -728,7 +727,7 @@ for i, step in enumerate(steps):
                         break
             if "马的前哨据点" in strategic_used: break
 
-    if quality in ("送子", "漏杀"):
+    if quality in ("送子", "送杀", "漏杀"):
         CONCEPT_BANK["战术"]["消除防御"] = True; tactic_used.add("消除防御")
 
 concept_parts = ["【本局涉及的关键棋局概念，自然融入讲解】"]
@@ -852,8 +851,8 @@ if LCO_AVAILABLE and lc0_engine and steps:
         curr = steps[i]
         next_s = steps[i+1]
         if (curr["round"] == next_s["round"] and
-            curr["quality"] in ("漏杀", "送子", "失误") and
-            next_s["quality"] in ("漏杀", "送子", "失误")):
+            curr["quality"] in ("漏杀", "送杀", "送子", "失误") and
+            next_s["quality"] in ("漏杀", "送杀", "送子", "失误")):
             critical_indices.add(i)
             critical_indices.add(i+1)
 
@@ -868,7 +867,7 @@ if LCO_AVAILABLE and lc0_engine and steps:
         if cs.get("tactical_themes"):
             names = [t["type"] for t in cs["tactical_themes"]]
             reasons.append(f"战术: {', '.join(names)}")
-        if cs["quality"] in ("漏杀", "送子", "失误"):
+        if cs["quality"] in ("漏杀", "送杀", "送子", "失误"):
             reasons.append(f"着法质量: {cs['quality']}")
         print(f"    第{cs['move_number']}步 {cs['move_san']} — {'; '.join(reasons)}")
 
@@ -1006,7 +1005,7 @@ if opening_profile.get("opening_name"):
 # ---- 着法质量统计 ----
 quality_counts = Counter(s["quality"] for s in steps)
 print("\n着法质量统计:")
-for q in ["妙手", "好棋", "正常", "缓着", "疑问", "失误", "漏杀", "送子"]:
+for q in ["妙手", "好棋", "正常", "缓着", "疑问", "失误", "漏杀", "送杀", "送子"]:
     count = quality_counts.get(q, 0)
     bar = "█" * count
     print(f"  {q}: {count:>3} {bar}")
@@ -1042,7 +1041,7 @@ for step in steps:
     themes = step.get("tactical_themes", [])
 
     icon = {"妙手": "⭐", "好棋": "👍", "正常": "  ", "缓着": "➖",
-            "疑问": "❓", "失误": "⚠️", "漏杀": "🔍", "送子": "💀"}
+            "疑问": "❓", "失误": "⚠️", "漏杀": "🔍", "送杀": "💣", "送子": "💀"}
 
     # 战术标注
     tactical_label = ""

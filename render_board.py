@@ -1451,7 +1451,7 @@ class ChessBoardRenderer:
             if hasattr(self, 'step_qualities') and move_idx in self.step_qualities:
                 q = self.step_qualities[move_idx]
                 move_ann = {"妙手": "!!", "好棋": "!", "缓着": "?!",
-                            "疑问": "?!", "失误": "?", "漏杀": "??", "送子": "?"}.get(q)
+                            "疑问": "?!", "失误": "?", "漏杀": "??", "送杀": "??", "送子": "?"}.get(q)
 
             img = self.render_board(
                 board,
