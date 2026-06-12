@@ -204,16 +204,56 @@ for move_number, move in enumerate(game.mainline_moves(), start=1):
     # diff_from_perspective: 正值=本方的局面改善, 负值=恶化
     diff_from_perspective = score_diff if is_white_move else -score_diff
     abs_diff = abs(diff_from_perspective)
-    
+
     # 检查己方是否处于明显劣势
     side_is_losing = (is_white_move and score_before_cp < -200) or (not is_white_move and score_before_cp > 200)
-    
+
+    # ---- 漏杀检测：走棋前存在 ≤10步的杀棋机会，走棋后错过 ----
+    had_mate_threat = False
+    if best_info and "score" in best_info:
+        try:
+            sf_score_before_move = best_info["score"].white()
+            if sf_score_before_move.is_mate():
+                mate_in = sf_score_before_move.mate()
+                # 正数=白方可以在mate_in步内将杀, 负数=黑方
+                if is_white_move and mate_in > 0 and mate_in <= 10:
+                    had_mate_threat = True
+                elif not is_white_move and mate_in < 0 and abs(mate_in) <= 10:
+                    had_mate_threat = True
+        except Exception:
+            pass
+
+    # 也检查走棋后的评分（如果走棋后的引擎显示了对方的杀棋）
+    gave_mate_to_opponent = False
+    if "score" in info_after:
+        try:
+            sf_score_after = info_after["score"].white()
+            if sf_score_after.is_mate():
+                mate_after = sf_score_after.mate()
+                if (is_white_move and mate_after < 0 and abs(mate_after) <= 10) or \
+                   (not is_white_move and mate_after > 0 and mate_after <= 10):
+                    gave_mate_to_opponent = True
+        except Exception:
+            pass
+
     if diff_from_perspective <= -300:
         # 评分暴跌 > 3.0
-        if side_is_losing:
+        if had_mate_threat:
+            # 有明确的杀棋机会却错过了 → 漏杀
+            quality = "漏杀"
+        elif gave_mate_to_opponent:
+            # 走棋后给了对手短步杀 → 漏杀
+            quality = "漏杀"
+        elif side_is_losing:
             quality = "送子"
         else:
-            quality = "漏杀"
+            # 大幅评估下降但无杀棋机会 → 也可能是送子
+            # 进一步判断: 用candidates中最佳走法是否为杀棋来区分
+            best_score_cp = best_info["score"].white().score()
+            if abs(best_score_cp) >= 500 and not had_mate_threat:
+                quality = "送子"
+            else:
+                quality = "漏杀"
     elif diff_from_perspective <= -150:
         quality = "失误"
     elif diff_from_perspective <= -80:
