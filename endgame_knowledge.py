@@ -23,6 +23,16 @@ sys.stdout.reconfigure(encoding="utf-8")
 ENDGAME_MAX_PIECES = 12       # 12子以下视为残局
 TABLEBASE_MAX_PIECES = 7      # Syzygy 表库上限
 
+# ─── 加载残局原则库 ───
+_endgame_principles = []
+_principles_path = Path(__file__).parent / "endgame_principles.json"
+if _principles_path.exists():
+    try:
+        with _principles_path.open("r", encoding="utf-8") as f:
+            _endgame_principles = json.load(f)
+    except Exception:
+        pass
+
 # 棋子价值
 PIECE_VALUES = {
     chess.PAWN: 1, chess.KNIGHT: 3, chess.BISHOP: 3,
@@ -332,13 +342,61 @@ def _generate_endgame_advice(theory: dict, tb_result: dict, is_white: bool) -> s
     return "\n".join(parts)
 
 
+def _match_endgame_principles(board: "chess.Board") -> list[str]:
+    """
+    根据棋盘上的子力配置，匹配残局原则库中的相关条目。
+    返回匹配到的原则文本列表。
+    """
+    import chess
+    principles = []
+    if not _endgame_principles:
+        return principles
+
+    has_queen = board.pieces(chess.QUEEN, chess.WHITE) or board.pieces(chess.QUEEN, chess.BLACK)
+    rooks = len(board.pieces(chess.ROOK, chess.WHITE)) + len(board.pieces(chess.ROOK, chess.BLACK))
+    bishops = len(board.pieces(chess.BISHOP, chess.WHITE)) + len(board.pieces(chess.BISHOP, chess.BLACK))
+    knights = len(board.pieces(chess.KNIGHT, chess.WHITE)) + len(board.pieces(chess.KNIGHT, chess.BLACK))
+    pawns = len(board.pieces(chess.PAWN, chess.WHITE)) + len(board.pieces(chess.PAWN, chess.BLACK))
+    total = count_pieces(board)
+
+    # 匹配残局类型
+    if total <= 5 and not has_queen and rooks == 0 and bishops == 0 and knights == 0:
+        principles.append("pawn_endgame")
+    if rooks >= 1 and not has_queen:
+        principles.append("rook_endgame")
+    if bishops >= 1 and not has_queen and rooks == 0:
+        principles.append("bishop_endgame")
+    if knights >= 1 and not has_queen and rooks == 0 and bishops == 0:
+        principles.append("knight_endgame")
+    if has_queen:
+        principles.append("queen_endgame")
+
+    # 基本杀王
+    if total <= 3:
+        principles.append("basic_checkmates")
+
+    # 通用原则始终加入
+    principles.append("general_endgame")
+
+    # 提取具体文本
+    result = []
+    for entry in _endgame_principles:
+        if entry["category"] in principles:
+            result.append(f"【{entry['name']}】")
+            result.extend(entry["principles"])
+
+    return result
+
+
 def generate_endgame_summary_for_prompt(analysis_results: list) -> str:
     """
     为 pipeline.py 的提示词生成残局分析摘要。
     传入所有 step 的 endgame_analysis 字段（非 None 的）。
+    现在包含残局原则库的知识注入。
     """
     lines = []
     engine_vs_tb_found = False
+    principles_added = False
 
     for ar in analysis_results:
         if not ar or not ar.get("is_endgame"):
@@ -356,6 +414,19 @@ def generate_endgame_summary_for_prompt(analysis_results: list) -> str:
             if "矛盾" in ar["engine_vs_tb"]:
                 engine_vs_tb_found = True
 
+        # 添加残局原则（只添加一次）
+        if not principles_added and ar.get("is_endgame"):
+            theory_info = ar.get("theory_info", {})
+            total_pieces = theory_info.get("total_pieces", 0)
+            if total_pieces <= 12:
+                import chess
+                board = chess.Board()  # 从已有 board 不可能重建，用通用方式
+                matched = _match_endgame_principles_by_count(total_pieces)
+                if matched:
+                    lines.append("\n【残局原则库 — 教科书级别的残局理论，请在讲解中引用】")
+                    lines.extend(matched)
+                    principles_added = True
+
     if not lines:
         return ""
 
@@ -369,6 +440,30 @@ def generate_endgame_summary_for_prompt(analysis_results: list) -> str:
         )
 
     return summary
+
+
+def _match_endgame_principles_by_count(piece_count: int) -> list[str]:
+    """根据子力数量匹配残局原则（简化版，不依赖 board 对象）"""
+    result = []
+    if not _endgame_principles:
+        return result
+
+    categories = set()
+    if piece_count <= 5:
+        categories.add("pawn_endgame")
+        categories.add("basic_checkmates")
+    if piece_count <= 7:
+        categories.add("rook_endgame")
+        categories.add("bishop_endgame")
+    if piece_count <= 12:
+        categories.add("general_endgame")
+
+    for entry in _endgame_principles:
+        if entry["category"] in categories:
+            result.append(f"【{entry['name']}】")
+            result.extend(entry["principles"])
+
+    return result
 
 
 # ═══════════════════════════════════════════════════════════════
