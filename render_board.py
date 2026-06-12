@@ -31,6 +31,146 @@ INTRO_SUBTITLE = "深蓝国际象棋协会"
 
 OUTRO_TITLE = "感谢观看"
 OUTRO_SUBTITLE = "深蓝棋评 · 我们下期再见"
+
+# ===================== 动态摄像机配置 =====================
+CAMERA_ENABLED = True
+CAMERA_TRANSITION_FRAMES = 20  # 推拉过渡帧数（约1.3秒@15fps）
+CAMERA_ZOOM_SCALE = 1.35       # 放大倍数
+# =======================================================
+
+class CameraController:
+    """动态摄像机控制器 — 平滑推拉/平移"""
+
+    def __init__(self, board_width: int, board_height: int,
+                 board_x: int, board_y: int):
+        self.board_w = board_width
+        self.board_h = board_height
+        self.board_x = board_x
+        self.board_y = board_y
+
+        # 全局面区域（相对于棋盘表面的坐标）
+        self.full_rect = (0, 0, board_width, board_height)
+        # 当前裁剪区域
+        self.current = self.full_rect
+        # 目标裁剪区域
+        self.target = self.full_rect
+        self.transition_frames = 0
+        self.elapsed = 0
+        self.zoom_active = False
+
+    def zoom_to_zone(self, files: str, ranks: str = "1-8",
+                     duration: int = None):
+        """
+        聚焦到棋盘指定区域。
+        files: "a-h" / "e-h" / "g-h" 等
+        ranks: "1-8" / "5-8" / "1-4" 等
+        """
+        if duration is None:
+            duration = CAMERA_TRANSITION_FRAMES
+
+        sq = self.board_w // 8
+        f_start = ord(files[0]) - ord('a')
+        f_end = ord(files[-1]) - ord('a') + 1 if '-' in files else f_start + 1
+        r_start = 8 - int(ranks[-1]) if '-' in ranks else 0
+        r_end = 8 - int(ranks[0]) + 1 if '-' in ranks else r_start + 1
+
+        x = f_start * sq
+        y = r_start * sq
+        w = (f_end - f_start) * sq
+        h = (r_end - r_start) * sq
+
+        # 放大：在区域周围扩展一定 padding
+        pad_w = int(w * (CAMERA_ZOOM_SCALE - 1) / 2)
+        pad_h = int(h * (CAMERA_ZOOM_SCALE - 1) / 2)
+        x = max(0, x - pad_w)
+        y = max(0, y - pad_h)
+        w = min(self.board_w - x, w + pad_w * 2)
+        h = min(self.board_h - y, h + pad_h * 2)
+
+        self.target = (x, y, w, h)
+        self.transition_frames = duration
+        self.elapsed = 0
+        self.zoom_active = True
+
+    def zoom_to_full(self, duration: int = None):
+        """回到全局视角"""
+        if duration is None:
+            duration = CAMERA_TRANSITION_FRAMES // 2
+        self.target = self.full_rect
+        self.transition_frames = duration
+        self.elapsed = 0
+        self.zoom_active = False
+
+    def update(self):
+        """每帧调用，计算当前裁剪区域"""
+        if self.elapsed < self.transition_frames:
+            t = self.elapsed / self.transition_frames
+            # ease-in-out 缓动
+            t = t * t * (3 - 2 * t)
+            self.current = tuple(
+                int(a + (b - a) * t)
+                for a, b in zip(self.current, self.target)
+            )
+            self.elapsed += 1
+        else:
+            self.current = self.target
+
+    def is_zoomed(self) -> bool:
+        return self.zoom_active or self.elapsed < self.transition_frames
+
+    def apply(self, board_img):
+        """对棋盘图像应用当前摄像机裁剪"""
+        if self.current == self.full_rect and not self.is_zoomed():
+            return board_img
+        return board_img.crop(self.current)
+
+
+def _detect_camera_zone(step: dict, step_before: dict = None) -> str:
+    """
+    根据 step 数据自动判断是否需要镜头聚焦，以及聚焦区域。
+    返回 None（不聚焦）或文件范围如 "e-h"、"a-d" 等。
+    """
+    if not CAMERA_ENABLED:
+        return None
+
+    branch = step.get("branch", {})
+    if not branch.get("should_show"):
+        return None
+
+    trigger = branch.get("primary_trigger", "")
+    themes = step.get("tactical_themes", [])
+
+    # 王翼战术 → 聚焦 g/h 线
+    theme_types = {t.get("type", "") for t in themes}
+    if "mate_threat" in theme_types:
+        return "e-h"
+    if theme_types & {"fork", "pin", "skewer", "discovered_attack"}:
+        # 根据 move_san 判断方向
+        move_san = step.get("move_san", "")
+        if any(c in move_san for c in ['g', 'h']):
+            return "e-h"
+        if any(c in move_san for c in ['a', 'b', 'c']):
+            return "a-d"
+
+    # 失误步 → 聚焦失误发生的区域
+    quality = step.get("quality", "")
+    if quality in ("失误", "漏杀", "送子"):
+        move_san = step.get("move_san", "")
+        for c in ['g', 'h']:
+            if c in move_san:
+                return "e-h"
+        for c in ['a', 'b', 'c']:
+            if c in move_san:
+                return "a-d"
+
+    # 战略错误（如王盾破损）
+    sms = step.get("strategic_mistakes", [])
+    for sm in sms:
+        if sm.get("type") in ("king_shield_damage", "open_file_loss"):
+            return "e-h"
+
+    return None
+OUTRO_SUBTITLE = "深蓝棋评 · 我们下期再见"
 # =======================================================
 
 
@@ -1059,6 +1199,22 @@ class ChessBoardRenderer:
     def _draw_decorative_board(self, draw, x, y, size, alpha=0.25):
         """绘制装饰性半透明棋盘轮廓（兼容旧代码）"""
         self._draw_decorative_mini_board(draw, x, y, size, alpha)
+
+    def init_camera(self):
+        """在渲染开始时初始化摄像机"""
+        self.camera = CameraController(
+            self.board_size, self.board_size, self.board_x, self.board_y
+        )
+
+    def apply_camera(self, img):
+        """应用摄像机效果到当前帧"""
+        if not hasattr(self, 'camera'):
+            return img
+        self.camera.update()
+        cropped = self.camera.apply(img)
+        if cropped.size != img.size:
+            cropped = cropped.resize(img.size, Image.LANCZOS)
+        return cropped
 
     # --------------- 序列渲染 ---------------
     def render_sequence(self, pgn_path: Path, output_dir: Path,

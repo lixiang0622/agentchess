@@ -788,6 +788,10 @@ def main():
                        choices=["auto", "战术解析", "战略漫谈", "快评速览", "学院课堂"])
     parser.add_argument("--audience", type=str, default="中级",
                        choices=["初级", "中级", "高级"])
+    parser.add_argument("--enable-evaluation", dest="enable_evaluation",
+                       action="store_true", help="启用四维度质量评估+自动重写")
+    parser.add_argument("--eval", dest="enable_evaluation",
+                       action="store_true", help="同 --enable-evaluation")
     args, _ = parser.parse_known_args()
 
     commentary = auto_generate_commentary(api_key, api_type, model,
@@ -870,7 +874,42 @@ def main():
     print("\n" + "="*60)
     print("👨‍⚖️ 第 2.6 步: 多裁判模型互评")
     print("="*60)
-    try:
+    # 检查是否启用新版评估器
+    if "--enable-evaluation" in sys.argv or "--eval" in sys.argv:
+        try:
+            from commentary_evaluator import evaluate_and_rewrite
+
+            def _rewrite_cb(text, feedback):
+                """重写回调：将反馈注入到重新生成中"""
+                print(f"\n  🔄 触发重写: {feedback[:100]}...")
+                # 简单策略：在提示词末追加反馈
+                return auto_generate_commentary(
+                    api_key, api_type, model,
+                    style=args.style,
+                    audience=args.audience,
+                    extra_context=feedback
+                )
+
+            eval_result = evaluate_and_rewrite(
+                commentary, args.audience, api_key, api_type, model,
+                min_score=6.0, max_rewrites=2, rewrite_callback=None  # 不用回调，手动重试
+            )
+            print(f"  最终评分: {eval_result.get('score','?')}/10 "
+                  f"{'✅通过' if eval_result.get('passed') else '⚠待改进'}")
+            if eval_result.get('rewrites', 0) > 0:
+                # 使用重写后的解说词
+                commentary = eval_result['commentary']
+                # 重新保存
+                with (script_dir / "commentary.txt").open("w", encoding="utf-8") as f:
+                    f.write(commentary)
+                print(f"  ✓ 已使用重写后的解说词（{len(commentary)} 字）")
+        except Exception as e:
+            print(f"⚠ 新版评估器失败: {e}，使用旧版评估...")
+            # 退回旧版
+            eval_result = evaluate_commentary(commentary, analysis_data, opening_info,
+                                                api_key, api_type, model)
+    else:
+        try:
         eval_result = evaluate_commentary(commentary, analysis_data, opening_info,
                                            api_key, api_type, model)
         eval_file = script_dir / "commentary_evaluation.json"
