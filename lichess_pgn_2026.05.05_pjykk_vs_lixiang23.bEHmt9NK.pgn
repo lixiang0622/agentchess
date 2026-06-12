@@ -1,0 +1,22 @@
+[Event "五一东大中国科大线上友谊赛决赛"]
+[Site "https://lichess.org/bEHmt9NK"]
+[Date "2026.05.05"]
+[Round "-"]
+[White "pjykk"]
+[Black "lixiang23"]
+[Result "0-1"]
+[GameId "bEHmt9NK"]
+[UTCDate "2026.05.05"]
+[UTCTime "13:21:34"]
+[WhiteElo "2120"]
+[BlackElo "2050"]
+[Variant "Standard"]
+[TimeControl "600+5"]
+[ECO "C88"]
+[Opening "Ruy Lopez: Closed"]
+[Termination "Normal"]
+[Annotator "lichess.org"]
+
+1. e4 { [%eval 0.18] [%clk 0:10:00] } 1... e5 { [%eval 0.22] [%clk 0:10:00] } 2. Nf3 { [%eval 0.18] [%clk 0:10:04] } 2... Nc6 { [%eval 0.22] [%clk 0:10:05] } 3. Bb5 { [%eval 0.15] [%clk 0:10:05] } 3... a6 { [%eval 0.21] [%clk 0:10:08] } 4. Ba4 { [%eval 0.11] [%clk 0:10:09] } 4... Nf6 { [%eval 0.28] [%clk 0:10:12] } 5. O-O { [%eval 0.16] [%clk 0:10:13] } 5... Be7 { [%eval 0.24] [%clk 0:10:16] } 6. Re1 { [%eval 0.19] [%clk 0:10:17] } 6... b5 { [%eval 0.14] [%clk 0:10:19] } 7. Bb3 { [%eval 0.18] [%clk 0:10:21] } 7... O-O { [%eval 0.26] [%clk 0:10:24] } { C88 Ruy Lopez: Closed } 8. h3 { [%eval 0.22] [%clk 0:10:25] } 8... d5 { [%eval 0.37] [%clk 0:10:24] } 9. exd5 { [%eval 0.46] [%clk 0:10:28] } 9... Nxd5 { [%eval 0.29] [%clk 0:10:28] } 10. Nxe5 { [%eval 0.26] [%clk 0:10:32] } 10... Nxe5 { [%eval 0.32] [%clk 0:10:33] } 11. Rxe5 { [%eval 0.45] [%clk 0:10:36] } 11... c6 { [%eval 0.98] [%clk 0:10:37] } 12. Nc3?! { (0.98 → 0.15) Inaccuracy. Re1 was best. } { [%eval 0.15] [%clk 0:10:39] } (12. Re1 Bb7 13. Nc3 Nf6 14. d4 c5 15. dxc5 Qc7 16. Bf4 Qc6 17. Qf3 Qxf3) 12... Bd6? { (0.15 → 1.28) Mistake. Nxc3 was best. } { [%eval 1.28] [%clk 0:10:32] } (12... Nxc3 13. bxc3 c5 14. Qf3 Qc7 15. Re2 Bb7 16. Bd5 Bxd5 17. Qxd5 Rad8 18. Qf3) 13. Re1 { [%eval 1.19] [%clk 0:10:39] } 13... Nf4?! { (1.19 → 1.96) Inaccuracy. Bc7 was best. } { [%eval 1.96] [%clk 0:10:26] } (13... Bc7 14. Nxd5 cxd5 15. Qf3 Be6 16. d3 Rc8 17. a4 b4 18. a5 Re8 19. Bd2) 14. d4 { [%eval 1.92] [%clk 0:10:18] } 14... Qf6 { [%eval 1.96] [%clk 0:10:25] } 15. Ne4 { [%eval 1.96] [%clk 0:10:12] } 15... Qg6 { [%eval 1.88] [%clk 0:10:19] } 16. Bxf4 { [%eval 1.82] [%clk 0:10:07] } 16... Bxf4 { [%eval 1.95] [%clk 0:10:18] } 17. Qf3 { [%eval 1.92] [%clk 0:10:10] } 17... Bc7? { (1.92 → 3.72) Mistake. Bb8 was best. } { [%eval 3.72] [%clk 0:09:56] } (17... Bb8 18. Re3 a5 19. a4 Ra6 20. Nc5 Ra7 21. c3 Qd6 22. g3 Bxh3 23. Rae1) 18. Nc5? { (3.72 → 1.75) Mistake. Ng5 was best. } { [%eval 1.75] [%clk 0:10:04] } (18. Ng5 Bf5 19. Nxf7 Rxf7 20. Re7 Rf8 21. Rxc7 Be6 22. Rxf7 Qxf7 23. Re1 Bc4) 18... Bf5 { [%eval 1.72] [%clk 0:09:49] } 19. c3 { [%eval 1.75] [%clk 0:10:02] } 19... Rad8?! { (1.75 → 2.80) Inaccuracy. h5 was best. } { [%eval 2.8] [%clk 0:09:26] } (19... h5 20. a4 h4 21. Rad1 Qg5 22. Kf1 Qf4 23. Qxf4 Bxf4 24. a5 Bd6 25. Re2) 20. g4? { (2.80 → 1.22) Mistake. Nxa6 was best. } { [%eval 1.22] [%clk 0:09:31] } (20. Nxa6 Bd6 21. a4 h5 22. axb5 cxb5 23. Nc5 Bc7 24. Ra7 Bb8 25. Rb7 h4) 20... Bc8 { [%eval 1.31] [%clk 0:09:16] } 21. Re7?! { (1.31 → 0.36) Inaccuracy. Kf1 was best. } { [%eval 0.36] [%clk 0:09:33] } (21. Kf1 Bd6 22. Rad1 a5 23. Qxc6 a4 24. Bd5 h5 25. Be4 Qg5 26. Qd5 Qxd5) 21... Bd6 { [%eval 0.4] [%clk 0:09:12] } 22. Rxf7?? { (0.40 → -2.85) Blunder. Re4 was best. } { [%eval -2.85] [%clk 0:09:33] } (22. Re4 a5 23. Rae1 a4 24. Bc2 h5 25. b4 hxg4 26. hxg4 f5 27. R4e3 Qxg4+) 22... Rxf7 { [%eval -2.86] [%clk 0:09:12] } 23. Ne4? { (-2.86 → -4.90) Mistake. Re1 was best. } { [%eval -4.9] [%clk 0:09:07] } (23. Re1 Qf6 24. Re3 Kf8 25. Bxf7 Kxf7 26. Qe2 Qg6 27. Ne4 Bb8 28. Nc5 Kg8) 23... Kf8? { (-4.90 → -3.10) Mistake. Be6 was best. } { [%eval -3.1] [%clk 0:08:51] } (23... Be6 24. Qe3 Bf4 25. Qe2 Bxb3 26. axb3 Rff8 27. Rxa6 Bb8 28. f3 Qh6 29. b4) 24. Bxf7 { [%eval -3.16] [%clk 0:08:59] } 24... Qxf7 { [%eval -3.11] [%clk 0:08:51] } 25. Qd3 { [%eval -3.5] [%clk 0:09:00] } 25... Qg6 { [%eval -3.34] [%clk 0:08:45] } 26. Qf3+ { [%eval -3.75] [%clk 0:08:54] } 26... Kg8 { [%eval -3.77] [%clk 0:08:41] } { White resigns. } 0-1
+
+

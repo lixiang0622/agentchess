@@ -1,0 +1,6 @@
+{
+    "_comment": "复制此文件为 api_config.json 并填入你的 API Key。api_config.json 不会被提交到 git。",
+    "api_key": "在这里填入你的 API Key",
+    "api_type": "deepseek",
+    "model": "deepseek-v4-pro"
+}

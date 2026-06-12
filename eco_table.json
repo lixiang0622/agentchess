@@ -1,0 +1,477 @@
+[
+  [
+    "A00",
+    "不规则开局",
+    "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w"
+  ],
+  [
+    "A04",
+    "列蒂开局",
+    "rnbqkbnr/pppppppp/8/8/8/5N2/PPPPPPPP/RNBQKB1R b"
+  ],
+  [
+    "A10",
+    "英国式开局",
+    "rnbqkbnr/pppppppp/8/8/2P5/8/PP1PPPPP/RNBQKBNR b"
+  ],
+  [
+    "A13",
+    "英国式开局-对称",
+    "rnbqkbnr/pp1ppppp/8/2p5/2P5/8/PP1PPPPP/RNBQKBNR w"
+  ],
+  [
+    "A40",
+    "后翼印度-侧翼",
+    "rnbqkb1r/ppp1pppp/5n2/3p4/2PP4/8/PP2PPPP/RNBQKBNR w"
+  ],
+  [
+    "A45",
+    "特龙普斯基进攻",
+    "rnbqkb1r/pppppppp/5n2/6B1/3P4/8/PPP1PPPP/RN1QKBNR b"
+  ],
+  [
+    "A46",
+    "伦敦体系",
+    "rnbqkb1r/pppppppp/5n2/8/3P4/5N2/PPP1PPPP/RNBQKB1R b"
+  ],
+  [
+    "A48",
+    "伦敦体系-主线",
+    "rnbqkb1r/pppppppp/5n2/6B1/3P4/5N2/PPP1PPPP/RN1QKB1R b"
+  ],
+  [
+    "A80",
+    "荷兰防御",
+    "rnbqkbnr/ppppp1pp/8/5p2/3P4/8/PPP1PPPP/RNBQKBNR w"
+  ],
+  [
+    "B00",
+    "王前兵开局",
+    "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b"
+  ],
+  [
+    "B01",
+    "斯堪的纳维亚防御",
+    "rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w"
+  ],
+  [
+    "B06",
+    "皮尔茨防御",
+    "rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R b"
+  ],
+  [
+    "B10",
+    "卡罗康防御",
+    "rnbqkbnr/pp1ppppp/2p5/8/4P3/8/PPPP1PPP/RNBQKBNR w"
+  ],
+  [
+    "B12",
+    "卡罗康-推进变例",
+    "rnbqkbnr/pp2pppp/2p5/3p4/3PP3/8/PPP2PPP/RNBQKBNR b"
+  ],
+  [
+    "B15",
+    "卡罗康-古典变例",
+    "rnbqkbnr/pp2pppp/2p5/3p4/4P3/2N5/PPPP1PPP/R1BQKBNR b"
+  ],
+  [
+    "B20",
+    "西西里防御",
+    "rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w"
+  ],
+  [
+    "B22",
+    "西西里-阿拉平变例",
+    "rnbqkbnr/pp1ppppp/8/2p5/4P3/2P5/PP1P1PPP/RNBQKBNR b"
+  ],
+  [
+    "B23",
+    "西西里-封闭变例",
+    "rnbqkbnr/pp1ppppp/8/2p5/4P3/2N5/PPPP1PPP/R1BQKBNR b"
+  ],
+  [
+    "B30",
+    "西西里-罗索里莫",
+    "rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R b"
+  ],
+  [
+    "B33",
+    "西西里-斯维什尼科夫",
+    "r1bqkbnr/pp1ppppp/2n5/1N2p3/4P3/8/PPPP1PPP/RNBQKB1R b"
+  ],
+  [
+    "B40",
+    "西西里-保尔逊",
+    "rnbqkbnr/pp1p1ppp/4p3/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R w"
+  ],
+  [
+    "B50",
+    "西西里-纳道尔夫起点",
+    "rnbqkb1r/pp1ppp1p/5np1/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R w"
+  ],
+  [
+    "B70",
+    "西西里-龙式变例",
+    "rnbqkb1r/pp2pp1p/3p1np1/8/3NP3/2N5/PPP2PPP/R1BQKB1R w"
+  ],
+  [
+    "B80",
+    "西西里-舍维宁根",
+    "rnbqkb1r/1p2pppp/p2p1n2/8/3NP3/2N5/PPP2PPP/R1BQKB1R w"
+  ],
+  [
+    "B90",
+    "西西里-纳道尔夫",
+    "rnbqkb1r/1p2pppp/p2p1n2/8/3NP3/2N5/PPP2PPP/R1BQKB1R w"
+  ],
+  [
+    "C00",
+    "法兰西防御",
+    "rnbqkbnr/pppp1ppp/4p3/8/4P3/8/PPPP1PPP/RNBQKBNR w"
+  ],
+  [
+    "C02",
+    "法兰西-推进变例",
+    "rnbqkbnr/ppp2ppp/4p3/3p4/3PP3/8/PPP2PPP/RNBQKBNR b"
+  ],
+  [
+    "C10",
+    "法兰西-鲁宾斯坦",
+    "rnbqkb1r/ppp2ppp/4pn2/3p4/4P3/2N5/PPPP1PPP/R1BQKBNR w"
+  ],
+  [
+    "C11",
+    "法兰西-古典变例",
+    "rnbqkbnr/ppp2ppp/4p3/3p4/4P3/2N5/PPPP1PPP/R1BQKBNR b"
+  ],
+  [
+    "C20",
+    "王翼弃兵",
+    "rnbqkbnr/pppp1ppp/8/4p3/4PP2/8/PPPP2PP/RNBQKBNR b"
+  ],
+  [
+    "C21",
+    "王翼弃兵-接受",
+    "rnbqkbnr/pppp1ppp/8/8/4Pp2/8/PPPP2PP/RNBQKBNR w"
+  ],
+  [
+    "C44",
+    "苏格兰开局",
+    "r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w"
+  ],
+  [
+    "C45",
+    "苏格兰开局-主线",
+    "r1bqkbnr/pppp1ppp/2n5/8/3pP3/5N2/PPP2PPP/RNBQKB1R w"
+  ],
+  [
+    "C47",
+    "苏格兰-四马变例",
+    "r1bqkb1r/pppp1ppp/2n2n2/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w"
+  ],
+  [
+    "C50",
+    "意大利开局",
+    "r1bqkbnr/pppp1ppp/2n5/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R b"
+  ],
+  [
+    "C51",
+    "意大利-伊文思弃兵",
+    "r1bqkbnr/pppp1ppp/2n5/4p3/2B1P3/2P2N2/PP1P1PPP/RNBQK2R b"
+  ],
+  [
+    "C54",
+    "意大利-古典防御",
+    "r1bqk2r/pppp1ppp/2n2n2/2b1p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w"
+  ],
+  [
+    "C55",
+    "意大利-双马防御",
+    "r1bqkb1r/pppp1ppp/2n2n2/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w"
+  ],
+  [
+    "C57",
+    "意大利-双马主线",
+    "r1bqkb1r/ppp2ppp/2n2n2/4N3/2BpP3/8/PPPP1PPP/RNBQK2R w"
+  ],
+  [
+    "C60",
+    "西班牙开局",
+    "r1bqkbnr/pppp1ppp/2n5/1B2p3/4P3/5N2/PPPP1PPP/RNBQK2R b"
+  ],
+  [
+    "C65",
+    "西班牙-柏林防御",
+    "r1bqkb1r/pppp1ppp/2n2n2/1B2p3/4P3/5N2/PPPP1PPP/RNBQK2R w"
+  ],
+  [
+    "C67",
+    "西班牙-柏林防御主线",
+    "r1bqkb1r/pppp1ppp/2n5/1B2p3/4n3/5N2/PPPP1PPP/RNBQ1RK1 w"
+  ],
+  [
+    "C68",
+    "西班牙-交换变例",
+    "r1bqkbnr/1ppp1ppp/p1B5/4p3/4P3/5N2/PPPP1PPP/RNBQK2R b"
+  ],
+  [
+    "C77",
+    "西班牙-莫菲防御",
+    "r1bqkbnr/1ppp1ppp/p1n5/1B2p3/4P3/5N2/PPPP1PPP/RNBQK2R w"
+  ],
+  [
+    "C78",
+    "西班牙-莫菲防御主线",
+    "r1bqk2r/1pppbppp/p1n2n2/1B2p3/4P3/5N2/PPPP1PPP/RNBQ1RK1 w"
+  ],
+  [
+    "C80",
+    "西班牙-开放变例",
+    "r1bqkb1r/2pp1ppp/p1n2n2/1p2p3/4P3/1B3N2/PPPP1PPP/RNBQ1RK1 w"
+  ],
+  [
+    "C83",
+    "西班牙-开放变例主线",
+    "r1bqkb1r/2pp1ppp/p1n5/1p2p3/3Pn3/1B3N2/PPP2PPP/RNBQ1RK1 w"
+  ],
+  [
+    "C84",
+    "西班牙-封闭变例",
+    "r1bqk2r/2ppbppp/p1n2n2/1p2p3/4P3/1B3N2/PPPP1PPP/RNBQ1RK1 w"
+  ],
+  [
+    "C88",
+    "西班牙-封闭变例主线",
+    "r1bq1rk1/2ppbppp/p1n2n2/1p2p3/4P3/1B3N2/PPPP1PPP/RNBQR1K1 w"
+  ],
+  [
+    "C89",
+    "西班牙-马歇尔弃兵",
+    "r1bq1rk1/2p1bppp/p1n2n2/1p1pp3/4P3/1BP2N2/PP1P1PPP/RNBQR1K1 w"
+  ],
+  [
+    "C92",
+    "西班牙-封闭9.h3",
+    "r1bq1rk1/2ppbppp/p1n2n2/1p2p3/4P3/1B3N1P/PPPP1PP1/RNBQR1K1 b"
+  ],
+  [
+    "C97",
+    "西班牙-奇戈林变例",
+    "r1bq1rk1/2p1bpp1/p1np1n1p/1p2p3/4P3/1BP2N1P/PP1P1PP1/RNBQR1K1 w"
+  ],
+  [
+    "C98",
+    "西班牙-奇戈林主线",
+    "r1bq1rk1/2p1bpp1/p1np1n1p/1p2p3/P3P3/1BP2N1P/1P1P1PP1/RNBQR1K1 b"
+  ],
+  [
+    "C99",
+    "西班牙-奇戈林-斯米斯洛夫",
+    "r1bq1rk1/2p1bpp1/p1np1n1p/1p2p3/4P3/PBP2N1P/1P1P1PP1/RNBQR1K1 b"
+  ],
+  [
+    "D00",
+    "后翼弃兵",
+    "rnbqkbnr/ppp1pppp/8/3p4/2PP4/8/PP2PPPP/RNBQKBNR b"
+  ],
+  [
+    "D02",
+    "后翼弃兵-伦敦体系",
+    "rnbqkbnr/ppp1pppp/8/3p4/2PP4/5N2/PP2PPPP/RNBQKB1R b"
+  ],
+  [
+    "D06",
+    "后翼弃兵-接受",
+    "rnbqkbnr/ppp1pppp/8/8/2pP4/8/PP2PPPP/RNBQKBNR w"
+  ],
+  [
+    "D10",
+    "斯拉夫防御",
+    "rnbqkbnr/pp2pppp/2p5/3p4/2PP4/8/PP2PPPP/RNBQKBNR w"
+  ],
+  [
+    "D15",
+    "斯拉夫-接受变例",
+    "rnbqkbnr/pp2pppp/2p5/8/2pP4/2N5/PP2PPPP/R1BQKBNR w"
+  ],
+  [
+    "D17",
+    "斯拉夫-主线",
+    "rnbqkb1r/pp2pppp/2p2n2/8/2BP4/2N5/PP2PPPP/R1BQK2R b"
+  ],
+  [
+    "D30",
+    "后翼弃兵-拒绝",
+    "rnbqkbnr/pp2pppp/2p5/3p4/2PP4/5N2/PP2PPPP/RNBQKB1R b"
+  ],
+  [
+    "D35",
+    "后翼弃兵-交换变例",
+    "rnbqkbnr/ppp2ppp/4p3/3P4/3P4/8/PP2PPPP/RNBQKBNR b"
+  ],
+  [
+    "D37",
+    "后翼弃兵-正统防御",
+    "rnbqkb1r/ppp2ppp/4pn2/3p4/2PP4/5N2/PP2PPPP/RNBQKB1R w"
+  ],
+  [
+    "D43",
+    "后翼弃兵-半斯拉夫",
+    "rnbqkb1r/pp3ppp/2p1pn2/3p4/2PP4/2N2N2/PP2PPPP/R1BQKB1R w"
+  ],
+  [
+    "E00",
+    "印度防御",
+    "rnbqkb1r/pppppppp/5n2/8/2PP4/8/PP2PPPP/RNBQKBNR w"
+  ],
+  [
+    "E10",
+    "后翼印度防御",
+    "rnbqkb1r/pppppp1p/5np1/8/2PP4/8/PP2PPPP/RNBQKBNR w"
+  ],
+  [
+    "E12",
+    "后翼印度-主线",
+    "rnbqkb1r/p1pppp1p/1p3np1/8/2PP4/5N2/PP2PPPP/RNBQKB1R w"
+  ],
+  [
+    "E15",
+    "后翼印度-卡帕布兰卡",
+    "rnbqkb1r/pp1ppppp/5n2/2p5/2PP4/5N2/PP2PPPP/RNBQKB1R b"
+  ],
+  [
+    "E20",
+    "尼姆佐维奇防御",
+    "rnbqk2r/pppp1ppp/4pn2/8/1bPP4/2N5/PP2PPPP/R1BQKBNR w"
+  ],
+  [
+    "E32",
+    "尼姆佐维奇-古典",
+    "rnbq1rk1/pppp1ppp/4pn2/8/1bPP4/2N5/PPQ1PPPP/R1B1KBNR b"
+  ],
+  [
+    "E60",
+    "王翼印度防御",
+    "rnbqkb1r/pppppp1p/5np1/8/2PP4/8/PP2PPPP/RNBQKBNR w"
+  ],
+  [
+    "E61",
+    "王翼印度-主线",
+    "rnbqkb1r/pppppp1p/5np1/8/2PP4/2N5/PP2PPPP/R1BQKBNR b"
+  ],
+  [
+    "E90",
+    "王翼印度-古典",
+    "rnbq1rk1/ppppppbp/5np1/8/2PP4/2N2N2/PP2PPPP/R1BQKB1R w"
+  ],
+  [
+    "E97",
+    "王翼印度-马德拉斯",
+    "rnbq1rk1/pp2ppbp/3p1np1/2pP4/2P1P3/2N2N2/PP2B1PP/R1BQK2R w"
+  ],
+  [
+    "B02",
+    "阿廖欣防御",
+    "rnbqkb1r/pppppppp/5n2/4P3/8/8/PPPP1PPP/RNBQKBNR b"
+  ],
+  [
+    "B07",
+    "皮尔茨防御-古典变例",
+    "rnbqkb1r/ppp1pp1p/3p1np1/8/3PP3/2N5/PPP2PPP/R1BQKBNR b"
+  ],
+  [
+    "B08",
+    "皮尔茨防御-150进攻",
+    "rnbqkb1r/ppp1pp1p/3p1np1/8/3PP3/2N1B3/PPPQ1PPP/R3KBNR b"
+  ],
+  [
+    "C30",
+    "王翼弃兵",
+    "rnbqkbnr/pppp1ppp/8/4p3/4PP2/8/PPPP2PP/RNBQKBNR b"
+  ],
+  [
+    "C33",
+    "王翼弃兵-接受",
+    "rnbqkbnr/pppp1ppp/8/8/4Pp2/5N2/PPPP2PP/RNBQKB1R b"
+  ],
+  [
+    "C42",
+    "俄罗斯防御",
+    "rnbqkb1r/pppp1ppp/5n2/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w"
+  ],
+  [
+    "C48",
+    "四马开局",
+    "r1bqkb1r/pppp1ppp/2n2n2/4p3/4P3/2N2N2/PPPP1PPP/R1BQKB1R w"
+  ],
+  [
+    "C49",
+    "四马开局-西班牙变例",
+    "r1bqkb1r/pppp1ppp/2n2n2/1B2p3/4P3/2N2N2/PPPP1PPP/R1BQK2R b"
+  ],
+  [
+    "D70",
+    "格林菲尔德防御",
+    "rnbqkb1r/ppp1pp1p/6p1/3p4/2PP4/2N5/PP2PPPP/R1BQKBNR w"
+  ],
+  [
+    "D85",
+    "格林菲尔德-交换变例",
+    "rnbqkb1r/pp2pp1p/6p1/3p4/3PP3/2N5/PP3PPP/R1BQKBNR b"
+  ],
+  [
+    "E01",
+    "卡塔兰开局",
+    "rnbqkb1r/pppp1ppp/4pn2/8/2PP4/6P1/PP2PP1P/RNBQKBNR b"
+  ],
+  [
+    "E04",
+    "卡塔兰-开放变例",
+    "rnbqkb1r/ppp2ppp/4pn2/3p4/2PP4/5NP1/PP2PPBP/RNBQK2R b"
+  ],
+  [
+    "E05",
+    "卡塔兰-封闭变例",
+    "rnbqk2r/ppp1bppp/4pn2/3p4/2PP4/5NP1/PP2PPBP/RNBQ1RK1 b"
+  ],
+  [
+    "A51",
+    "布达佩斯弃兵",
+    "rnbqkb1r/pppp1ppp/5n2/4p3/2PP4/8/PP2PPPP/RNBQKBNR w"
+  ],
+  [
+    "A52",
+    "布达佩斯弃兵-接受",
+    "rnbqkb1r/pppp1ppp/8/4P3/2P5/8/PP2PPPP/RNBQKBNR b"
+  ],
+  [
+    "A60",
+    "别诺尼防御",
+    "rnbqkb1r/pp1ppppp/5n2/2pP4/2P5/8/PP2PPPP/RNBQKBNR b"
+  ],
+  [
+    "A61",
+    "现代别诺尼",
+    "rnbqkb1r/pp3ppp/3p1n2/2pPP3/2P5/2N5/PP3PPP/R1BQKBNR b"
+  ],
+  [
+    "A85",
+    "荷兰防御-列宁格勒变例",
+    "rnbqk2r/ppppp1bp/5np1/5p2/2PP4/5NP1/PP2PPBP/RNBQK2R w"
+  ],
+  [
+    "A90",
+    "荷兰防御-古典变例",
+    "rnbqkbnr/pppp2pp/4p3/5p2/2PP4/8/PP2PPPP/RNBQKBNR w"
+  ],
+  [
+    "C38",
+    "王翼弃兵-拒绝",
+    "rnbqkbnr/pppp2pp/8/4pp2/4PP2/8/PPPP2PP/RNBQKBNR w"
+  ],
+  [
+    "C39",
+    "王翼弃兵-法尔克贝尔反弃兵",
+    "rnbqkbnr/ppp2ppp/8/3pp3/4PP2/8/PPPP2PP/RNBQKBNR w"
+  ]
+]

@@ -1,0 +1,67 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+dist/
+build/
+
+# Output & generated files
+output/
+step_audio/
+board_frames/
+*.mp4
+*.mp3
+*.wav
+*.png
+*.jpg
+!pieces/*.png
+!pieces_svg/*.png
+test_annotation.png
+board_direct_debug.png
+
+# Large binaries
+ffmpeg-*.tar.xz
+stockfish-*/
+stockfish-windows-x86-64-avx2/
+lc0-*/
+lc0-v0.32.1-windows-gpu-nvidia-cuda12/
+
+# Tablebase files (large)
+syzygy/*.rtbw
+syzygy/*.rtbz
+
+# Cache
+opening_cache.json
+tablebase_cache.json
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Generated JSON data files (from pipeline runs)
+analysis_result.json
+commentary.txt
+commentary_evaluation.json
+training_points.json
+merged_analysis_commentary.json
+video_script.tsv
+commentary.srt
+board_animation.mp4
+final_video.mp4
+chess_analysis_report_*.docx
+concat_list.txt
+
+# API Key (sensitive)
+api_config.json
+
+# Temp
+tmp/
+temp/
+*.tmp
