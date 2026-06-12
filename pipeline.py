@@ -910,21 +910,21 @@ def main():
                                                 api_key, api_type, model)
     else:
         try:
-        eval_result = evaluate_commentary(commentary, analysis_data, opening_info,
-                                           api_key, api_type, model)
-        eval_file = script_dir / "commentary_evaluation.json"
-        with eval_file.open("w", encoding="utf-8") as f:
-            json.dump(eval_result, f, ensure_ascii=False, indent=2)
-        print(f"✓ 互评结果已保存: {eval_file}")
-        print(f"  综合评分: {eval_result['average_score']}/10 {'✅ 通过' if eval_result['passed'] else '⚠ 建议修改'}")
+            eval_result = evaluate_commentary(commentary, analysis_data, opening_info,
+                                               api_key, api_type, model)
+            eval_file = script_dir / "commentary_evaluation.json"
+            with eval_file.open("w", encoding="utf-8") as f:
+                json.dump(eval_result, f, ensure_ascii=False, indent=2)
+            print(f"✓ 互评结果已保存: {eval_file}")
+            print(f"  综合评分: {eval_result['average_score']}/10 {'✅ 通过' if eval_result['passed'] else '⚠ 建议修改'}")
 
-        for jr in eval_result.get("judge_results", []):
-            print(f"  {jr.get('judge', '?')}: {jr.get('overall', '?')}/10")
-            weaknesses = jr.get("weaknesses", jr.get("confusing_parts", []))
-            if weaknesses:
-                print(f"    问题: {'; '.join(weaknesses[:2])}")
-    except Exception as e:
-        print(f"⚠ 多裁判互评失败: {e}，跳过")
+            for jr in eval_result.get("judge_results", []):
+                print(f"  {jr.get('judge', '?')}: {jr.get('overall', '?')}/10")
+                weaknesses = jr.get("weaknesses", jr.get("confusing_parts", []))
+                if weaknesses:
+                    print(f"    问题: {'; '.join(weaknesses[:2])}")
+        except Exception as e:
+            print(f"⚠ 多裁判互评失败: {e}，跳过")
 
     # 第 3 步：解析讲解词
     print("\n" + "="*60)
