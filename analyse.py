@@ -20,6 +20,7 @@ from endgame_knowledge import analyze_endgame_move, generate_endgame_summary_for
 from master_games_db import query_master_moves
 from branch_evaluator import evaluate_branch_trigger, apply_suppression_rules, generate_branch_guide_for_prompt
 from opening_knowledge import get_kb
+from position_explain import analyze as position_explain_analyze
 
 # 1. 设置引擎路径
 STOCKFISH_PATH = r"D:\国际象棋社团\agentchess\stockfish-windows-x86-64-avx2\stockfish\stockfish-windows-x86-64-avx2.exe"
@@ -306,6 +307,15 @@ for move_number, move in enumerate(game.mainline_moves(), start=1):
     else:
         masters_info = None
 
+    # ---- 局面可解释性分析 ----
+    explanation = position_explain_analyze(
+        board_before=board_before,
+        board_after=board,
+        move=move,
+        score_diff=score_diff/100,
+        is_white=is_white_move,
+    )
+
     # ---- 分支讲解触发评估 ----
     branch_result = evaluate_branch_trigger(
         {
@@ -343,6 +353,10 @@ for move_number, move in enumerate(game.mainline_moves(), start=1):
         "strategic_mistakes": strategic_mistakes,
         "masters": masters_info,
         "branch": branch_result,
+        "explanation": {
+            "diagnosis": explanation["diagnosis_zh"],
+            "changes": explanation["changes"],
+        },
         "time_spent_seconds": time_spent,
         "is_long_think": is_long_think,
     }
