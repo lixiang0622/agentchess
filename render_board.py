@@ -1532,7 +1532,6 @@ class ChessBoardRenderer:
             OUTRO_SUBTITLE + "\nAI 讲解 · 深蓝出品",
             style="outro"
         )
-        )
         for _ in range(outro_frames // 2):
             img_outro2.save(output_dir / f"frame_{frame_num:06d}.png")
             frame_num += 1
